@@ -30,6 +30,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.visa.visasampleapplication.ItemListActivity" />
         </activity>
+        <activity
+            android:name="com.visa.visasampleapplication.LoginActivity"
+            android:label="@string/title_activity_login"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
     </application>
 
 </manifest>
