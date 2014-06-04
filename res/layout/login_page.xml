@@ -30,6 +30,7 @@
         android:layout_below="@+id/username"
         android:ems="10"
         android:hint="@string/password"
+        android:fontFamily="Arial"
         android:inputType="textPassword" />
 
     <ImageView
@@ -37,11 +38,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/log_in_button"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        android:scaleType="centerInside"
+        android:scaleX="0.5"
+        android:scaleY="0.5"
         android:src="@drawable/visa_logo" />
 
 </RelativeLayout>
