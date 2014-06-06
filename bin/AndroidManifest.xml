@@ -12,7 +12,19 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@android:style/Theme.Holo" >
+        <activity
+            android:name="com.visa.visasampleapplication.LoginActivity"
+            android:label="@string/title_activity_login"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
         <activity
             android:name="com.visa.visasampleapplication.ItemListActivity"
             android:label="@string/app_name" >
@@ -22,6 +34,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        
         <activity
             android:name="com.visa.visasampleapplication.ItemDetailActivity"
             android:label="@string/title_item_detail"
@@ -30,10 +44,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.visa.visasampleapplication.ItemListActivity" />
         </activity>
+        -->
         <activity
-            android:name="com.visa.visasampleapplication.LoginActivity"
-            android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
+            android:name="com.visa.visasampleapplication.ItemListActivity"
+            android:label="@string/title_item_list"
+            android:parentActivityName="com.visa.visasampleapplication.LoginActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.visa.visasampleapplication.LoginActivity" />
+        </activity>
+        <activity
+            android:name="com.visa.visasampleapplication.ChargeCardActivity"
+            android:label="@string/title_activity_charge_card"
+            android:parentActivityName="com.visa.visasampleapplication.LoginActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.visa.visasampleapplication.LoginActivity" />
         </activity>
     </application>
 

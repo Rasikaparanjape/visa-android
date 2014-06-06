@@ -1,15 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Strings related to Application Information -->
     <string name="app_name">Visa Sample Application</string>
     <string name="title_item_detail">Item Detail</string>
-    <string name="login_page">Login Page</string>
+
+    <!-- String related to menu -->
+    <string name="dev_info">Developer Information</string>
+
+    <!-- Strings related to Enter Card Information page -->
     <string name="card_number">Card Number</string>
     <string name="expiration_date">MM/YY</string>
     <string name="CVV2">CVV2</string>
     <string name="zip_code">ZIP</string>
-    <string name="submit">Submit</string>
+    <string name="submit_button_text">Submit</string>
+
+    <!-- Strings related to Swipe Card Page -->
     <string name="sim_instructions">Please swipe card</string>
     <string name="charge_card">Charge Credit Card</string>
     <string name="sim_card">Simulate Credit Card</string>
+
+    <!-- Strings related to Charge/ Swipe Options Menu -->
+    <string name="swipe_card_menu_text">Swipe Card</string>
+    <string name="enter_card_menu_text">Enter Card Information</string>
+
+    <!-- Strings related to Login -->
+    <string name="prompt_loginID">Login ID</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_log_in">Log In</string>
+    <string name="login_progress_signing_in">Logging In&#8230;</string>
+    <string name="error_invalid_loginID">This login ID is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="visa_logo">Visa Logo</string>
+    <string name="title_activity_login">Sign In</string>
+
+    <!-- Strings related to Logout -->
+    <string name="action_log_out">Log Out</string>
+    <string name="title_item_list">Items</string>
+    <string name="title_activity_charge_card">ChargeCardActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
 </resources>

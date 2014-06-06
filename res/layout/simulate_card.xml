@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:paddingTop="?android:attr/actionBarSize" >
+    <TextView
+	    android:id="@+id/sim_instructions"
+	    android:textSize="20sp"
+	    android:textStyle="bold"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:paddingBottom="30dp"
+	    android:gravity="center"
+	    android:text="@string/sim_instructions" />
+
+    <EditText
+        android:id="@+id/sim_card_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/card_number"
+        android:gravity="center"
+        android:ems="10"
+        android:inputType="number" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/sim_expiration_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="@string/expiration_date"
+            android:inputType="date" />
+        <EditText
+            android:id="@+id/sim_CVV2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:gravity="center"
+            android:hint="@string/CVV2"
+            android:inputType="number" >
+            <requestFocus />
+        </EditText>
+        <EditText
+            android:id="@+id/sim_zip_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:gravity="center"
+            android:hint="@string/zip_code"
+            android:inputType="number" />
+    </LinearLayout>
+
+
+
+</LinearLayout>
