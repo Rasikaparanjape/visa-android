@@ -39,8 +39,7 @@
     <!-- Strings related to Logout -->
     <string name="action_log_out">Log Out</string>
     <string name="title_item_list">Items</string>
-    <string name="title_activity_charge_card">ChargeCardActivity</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_charge_card">Charge Credit Card</string>
     <string name="action_settings">Settings</string>
 
 </resources>

@@ -3,6 +3,5 @@
     tools:context="${packageName}.${activityClass}" >
     <item
         android:id="@+id/dev_info"
-        android:title="@string/dev_info"
-        android:showAsAction="never" />
+        android:title="@string/dev_info" />
 </menu>

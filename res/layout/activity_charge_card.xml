@@ -20,7 +20,10 @@
             android:ems="10"
             android:gravity="center"
             android:hint="@string/card_number"
-            android:inputType="number" />
+            android:maxLength="16"
+            android:inputType="number">
+            <requestFocus />
+        </EditText>
 
         <EditText
             android:id="@+id/expiration_date"
@@ -41,10 +44,7 @@
             android:layout_toRightOf="@id/expiration_date"
             android:gravity="center"
             android:hint="@string/CVV2"
-            android:inputType="number" >
-
-            <requestFocus />
-        </EditText>
+            android:inputType="number" />
 
         <EditText
             android:id="@+id/zip_code"
@@ -106,4 +106,5 @@
                 android:textStyle="bold" />
         </RelativeLayout>
     </RelativeLayout>
+
 </FrameLayout>

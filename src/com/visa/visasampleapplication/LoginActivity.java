@@ -1,4 +1,4 @@
-'package com.visa.visasampleapplication;
+package com.visa.visasampleapplication;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -9,22 +9,34 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+import net.authorize.Merchant;
+//import net.authorize.android.AuthNetActivityBase;
+//import net.authorize.android.SimpleActivity;
+//import net.authorize.auth.PasswordAuthentication;
+//import net.authorize.data.mobile.MobileDevice;
+//import net.authorize.auth.SessionTokenAuthentication;
+//import net.authorize.data.mobile.MobileDevice;
+//import net.authorize.util.StringUtils;
+//import net.authorize.xml.MessageType;
+
 
 import java.util.ArrayList;
 
 /**
  * Activity which displays a login screen to the user. */
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity { //change to AuthNetActivityBase
     /** A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system. */
-    private static ArrayList<String> dummyCredentials = new ArrayList<String> {
-            "test1@visa.com:test1password", "test2@visa.com:test2password" };
+	private ArrayList<String> dummyCredentials = new ArrayList<String>();
+
 
     /** The default email to populate the email field with. */
     public static final String EXTRA_LOGINID = "com.example.android.authenticatordemo.extra.LOGINID";
@@ -35,6 +47,7 @@ public class LoginActivity extends Activity {
     /** Values for loginID and password at the time of the login attempt. */
     private String mLoginID;
     private String mPassword;
+    
     
     /** UI references. */
     private EditText mLoginIDView;
@@ -62,6 +75,7 @@ public class LoginActivity extends Activity {
                     public boolean onEditorAction(TextView textView, int id,
                             KeyEvent keyEvent) {
                         if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                        	Log.d("Tricia's Tag","onEditorAction");
                             attemptLogin();
                             return true;
                         }
@@ -78,6 +92,7 @@ public class LoginActivity extends Activity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                    	Log.d("Tricia's Tag", "onClick");
                         attemptLogin();
                     }
                 });
@@ -87,13 +102,26 @@ public class LoginActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.login, menu);
+        Log.d("Tricia's Tag", "Inflated the menu");
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	//handle item selection
+    	if (item.getItemId() == R.id.dev_info) {
+    		//TODO: HANDLE DEV INFO
+    		return true;
+    	} else { 
+    		return super.onOptionsItemSelected(item);
+    	}
     }
 
     /** Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made. */
     public void attemptLogin() {
+    	Log.d("Tricia's Tag", "entering attemptLogin");
         if (mAuthTask != null) {
             return;
         }
@@ -186,6 +214,9 @@ public class LoginActivity extends Activity {
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
+        	dummyCredentials.add("test1@visa.com:test1password");
+        	dummyCredentials.add("test2@visa.com:test2password");
+            Log.d("Tricia's Tag", "first print: " + dummyCredentials.toString());
         	boolean contains = false;
             try {
                 // Simulate network access.
@@ -193,6 +224,7 @@ public class LoginActivity extends Activity {
             } catch (InterruptedException e) {
                 return false;
             }
+            //TODO: ADD DATA NETWORK CONNECTED STUFF 
 
             for (String credential : dummyCredentials) {
                 String[] pieces = credential.split(":");
@@ -202,22 +234,24 @@ public class LoginActivity extends Activity {
                     return pieces[1].equals(mPassword);
                 }
             }
-            
             // if account does not exist, create account and return true
-            if (!contains)
+            /** if (!contains) {
             	dummyCredentials.add(mLoginID + ":" + mPassword);
+            	Log.d("Tricia's Tag", "second print: " + dummyCredentials.toString());
+            } */
             return true;
             // TODO: register the new account here.
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
+            Log.d("Tricia's tag", "onPostExecute");
             mAuthTask = null;
             showProgress(false);
 
             if (success) {
                 //TODO: Link to the credit card page
-            	Intent chargeCardIntent = new Intent(this, ChargeCardActivity.class);
+            	Intent chargeCardIntent = new Intent(LoginActivity.this, ChargeCardActivity.class);
             	startActivity(chargeCardIntent);
                 finish();
 

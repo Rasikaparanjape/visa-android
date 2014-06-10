@@ -23,7 +23,8 @@ public final class R {
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
         public static final int ic_visalogo=0x7f020001;
-        public static final int visa_logo=0x7f020002;
+        public static final int visa_icon=0x7f020002;
+        public static final int visa_logo=0x7f020003;
     }
     public static final class id {
         public static final int CVV2=0x7f080003;
@@ -88,7 +89,7 @@ public final class R {
         /**  Strings related to Logout 
          */
         public static final int action_log_out=0x7f050017;
-        public static final int action_settings=0x7f05001b;
+        public static final int action_settings=0x7f05001a;
         /**  Strings related to Application Information 
          */
         public static final int app_name=0x7f050000;
@@ -105,7 +106,6 @@ public final class R {
         public static final int error_invalid_loginID=0x7f050011;
         public static final int error_invalid_password=0x7f050012;
         public static final int expiration_date=0x7f050004;
-        public static final int hello_world=0x7f05001a;
         public static final int login_progress_signing_in=0x7f050010;
         /**  Strings related to Login 
          */
