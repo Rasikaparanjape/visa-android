@@ -21,15 +21,16 @@ public final class R {
         public static final int activity_vertical_margin=0x7f040001;
     }
     public static final class drawable {
-        public static final int ic_launcher=0x7f020000;
-        public static final int ic_visalogo=0x7f020001;
-        public static final int visa_icon=0x7f020002;
-        public static final int visa_logo=0x7f020003;
+        public static final int dev_info=0x7f020000;
+        public static final int ic_launcher=0x7f020001;
+        public static final int ic_visalogo=0x7f020002;
+        public static final int visa_icon=0x7f020003;
+        public static final int visa_logo=0x7f020004;
     }
     public static final class id {
         public static final int CVV2=0x7f080003;
         public static final int card_number=0x7f080001;
-        public static final int container=0x7f080000;
+        public static final int charge_card_form=0x7f080000;
         public static final int dev_info=0x7f080018;
         public static final int expiration_date=0x7f080002;
         public static final int item_detail=0x7f080012;
@@ -85,11 +86,11 @@ public final class R {
     }
     public static final class string {
         public static final int CVV2=0x7f050005;
-        public static final int action_log_in=0x7f05000f;
+        public static final int action_log_in=0x7f050010;
         /**  Strings related to Logout 
          */
-        public static final int action_log_out=0x7f050017;
-        public static final int action_settings=0x7f05001a;
+        public static final int action_log_out=0x7f050018;
+        public static final int action_settings=0x7f05001b;
         /**  Strings related to Application Information 
          */
         public static final int app_name=0x7f050000;
@@ -100,30 +101,31 @@ public final class R {
         /**  String related to menu 
          */
         public static final int dev_info=0x7f050002;
-        public static final int enter_card_menu_text=0x7f05000c;
-        public static final int error_field_required=0x7f050014;
-        public static final int error_incorrect_password=0x7f050013;
-        public static final int error_invalid_loginID=0x7f050011;
-        public static final int error_invalid_password=0x7f050012;
+        public static final int enter_card_menu_text=0x7f05000d;
+        public static final int error_field_required=0x7f050015;
+        public static final int error_incorrect_password=0x7f050014;
+        public static final int error_invalid_loginID=0x7f050012;
+        public static final int error_invalid_password=0x7f050013;
         public static final int expiration_date=0x7f050004;
-        public static final int login_progress_signing_in=0x7f050010;
+        public static final int login_progress_signing_in=0x7f050011;
         /**  Strings related to Login 
          */
-        public static final int prompt_loginID=0x7f05000d;
-        public static final int prompt_password=0x7f05000e;
+        public static final int prompt_loginID=0x7f05000e;
+        public static final int prompt_password=0x7f05000f;
         public static final int sim_card=0x7f05000a;
         /**  Strings related to Swipe Card Page 
          */
         public static final int sim_instructions=0x7f050008;
         public static final int submit_button_text=0x7f050007;
+        public static final int swipe_card_alert=0x7f05000b;
         /**  Strings related to Charge/ Swipe Options Menu 
          */
-        public static final int swipe_card_menu_text=0x7f05000b;
-        public static final int title_activity_charge_card=0x7f050019;
-        public static final int title_activity_login=0x7f050016;
+        public static final int swipe_card_menu_text=0x7f05000c;
+        public static final int title_activity_charge_card=0x7f05001a;
+        public static final int title_activity_login=0x7f050017;
         public static final int title_item_detail=0x7f050001;
-        public static final int title_item_list=0x7f050018;
-        public static final int visa_logo=0x7f050015;
+        public static final int title_item_list=0x7f050019;
+        public static final int visa_logo=0x7f050016;
         public static final int zip_code=0x7f050006;
     }
     public static final class style {

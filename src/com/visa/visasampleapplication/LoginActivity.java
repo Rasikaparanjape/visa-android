@@ -4,12 +4,16 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +30,11 @@ import net.authorize.Merchant;
 //import net.authorize.data.mobile.MobileDevice;
 //import net.authorize.util.StringUtils;
 //import net.authorize.xml.MessageType;
+
+
+
+
+
 
 
 import java.util.ArrayList;
@@ -61,6 +70,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        getActionBar().show();
         // Set up the login form.
         mLoginID = getIntent().getStringExtra(EXTRA_LOGINID);
         mLoginIDView = (EditText) findViewById(R.id.loginID);
@@ -74,7 +84,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                     @Override
                     public boolean onEditorAction(TextView textView, int id,
                             KeyEvent keyEvent) {
-                        if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                        if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
                         	Log.d("Tricia's Tag","onEditorAction");
                             attemptLogin();
                             return true;
@@ -98,12 +108,18 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                 });
     }
 
+    /** Disable the back button. */
+    @Override
+    public void onBackPressed() {
+    	
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.login, menu);
         Log.d("Tricia's Tag", "Inflated the menu");
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -111,10 +127,38 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
     	//handle item selection
     	if (item.getItemId() == R.id.dev_info) {
     		//TODO: HANDLE DEV INFO
+    		openDevInfo();
     		return true;
-    	} else { 
+    	} else {
     		return super.onOptionsItemSelected(item);
     	}
+    }
+    
+    /** Opens an AlertDialog with developer information. */
+    public void openDevInfo() {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	TextView title = new TextView(this);
+    	title.setText("Developer Information");
+    	title.setGravity(Gravity.CENTER);
+    	title.setPadding(10, 10, 10, 10);
+    	title.setTextColor(Color.WHITE);
+    	title.setTextSize(20);
+    	builder.setCustomTitle(title);
+    	String message = "This application utilizes the Authorize.Net SDK available on GitHub"
+    			+ " under the username AuthorizeNet. Authorize.Net is a wholly owned subsidiary of Visa.";
+    	builder.setMessage(message).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				
+			}
+		});
+    	AlertDialog info = builder.create();
+    	info.show();
+    	//TODO: center the title
+    	TextView messageView = (TextView) info.findViewById(android.R.id.message);
+    	messageView.setTextSize(13);
+    	messageView.setGravity(Gravity.CENTER);
     }
 
     /** Attempts to sign in or register the account specified by the login form.
@@ -243,6 +287,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
             // TODO: register the new account here.
         }
 
+        
         @Override
         protected void onPostExecute(final Boolean success) {
             Log.d("Tricia's tag", "onPostExecute");

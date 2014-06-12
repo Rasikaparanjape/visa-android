@@ -19,6 +19,7 @@
     <string name="sim_instructions">Please swipe card</string>
     <string name="charge_card">Charge Credit Card</string>
     <string name="sim_card">Simulate Credit Card</string>
+    <string name="swipe_card_alert">Please swipe your credit card</string>
 
     <!-- Strings related to Charge/ Swipe Options Menu -->
     <string name="swipe_card_menu_text">Swipe Card</string>
@@ -35,6 +36,7 @@
     <string name="error_field_required">This field is required</string>
     <string name="visa_logo">Visa Logo</string>
     <string name="title_activity_login">Sign In</string>
+
 
     <!-- Strings related to Logout -->
     <string name="action_log_out">Log Out</string>

@@ -1,11 +1,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/charge_card_form"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.visa.visasampleapplication.ChargeCardActivity"
     tools:ignore="MergeRootFrame" >
-
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
@@ -20,7 +19,7 @@
             android:ems="10"
             android:gravity="center"
             android:hint="@string/card_number"
-            android:maxLength="16"
+            android:maxLength="19"
             android:inputType="number">
             <requestFocus />
         </EditText>
@@ -32,6 +31,7 @@
             android:layout_alignParentLeft="true"
             android:layout_below="@id/card_number"
             android:gravity="center"
+            android:maxLength="5"
             android:hint="@string/expiration_date"
             android:inputType="date" />
 
@@ -43,6 +43,7 @@
             android:layout_centerInParent="true"
             android:layout_toRightOf="@id/expiration_date"
             android:gravity="center"
+            android:maxLength="4"
             android:hint="@string/CVV2"
             android:inputType="number" />
 
@@ -52,6 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@id/card_number"
+            android:maxLength="5"
             android:layout_toRightOf="@id/CVV2"
             android:gravity="center"
             android:hint="@string/zip_code"
