@@ -39,7 +39,7 @@ public class ChargeCardActivity extends Activity {
 	
 	private int cardNumberLen = 0;
 	private int expDateLen = 0;
-
+//test
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
