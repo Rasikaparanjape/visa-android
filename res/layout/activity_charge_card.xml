@@ -1,4 +1,112 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/charge_card_form"
+    android:layout_width="match_parent"
+    android:fillViewport="true"
+    android:layout_height="match_parent">
+    
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="50dp">
+        <EditText
+            android:id="@+id/card_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="center"
+            android:imeOptions="actionNext"
+            android:hint="@string/card_number"
+            android:maxLength="19"
+            android:inputType="number">
+
+            <requestFocus />
+
+        </EditText>
+
+        <EditText
+            android:id="@+id/expiration_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:imeOptions="actionNext"
+            android:layout_below="@id/card_number"
+            android:gravity="center"
+            android:maxLength="5"
+            android:hint="@string/expiration_date"
+            android:inputType="date" />
+
+        <EditText
+            android:id="@+id/CVV2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/card_number"
+            android:layout_centerInParent="true"
+            android:imeOptions="actionNext"
+            android:layout_toRightOf="@id/expiration_date"
+            android:gravity="center"
+            android:maxLength="4"
+            android:hint="@string/CVV2"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/zip_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/card_number"
+            android:imeOptions="actionDone"
+            android:maxLength="5"
+            android:layout_toRightOf="@id/CVV2"
+            android:gravity="center"
+            android:hint="@string/zip_code"
+            android:inputType="number" />
+        
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/view_charge_card"
+            android:layout_marginLeft="4dip"
+            android:layout_marginRight="4dip"
+            android:background="?android:attr/dividerVertical" />
+
+        <View
+            android:id="@+id/view_charge_card"
+            android:layout_width="1dip"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignTop="@+id/swipe_card_button"
+            android:layout_marginBottom="4dip"
+            android:layout_centerHorizontal="true"
+            android:background="?android:attr/dividerVertical" />
+
+        <Button
+            android:id="@+id/swipe_card_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@id/view_charge_card"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/swipe_card_menu_text"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/submit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/view_charge_card"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/submit_button_text"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+</ScrollView>
+    
+
+
+<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/charge_card_form"
     android:layout_width="match_parent"
@@ -109,4 +217,4 @@
         </RelativeLayout>
     </RelativeLayout>
 
-</FrameLayout>
+</FrameLayout> -->

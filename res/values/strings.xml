@@ -20,6 +20,7 @@
     <string name="charge_card">Charge Credit Card</string>
     <string name="sim_card">Simulate Credit Card</string>
     <string name="swipe_card_alert">Please swipe your credit card</string>
+    <string name="swipe_card_alert_message">Processing credit card information&#8230;</string>
 
     <!-- Strings related to Charge/ Swipe Options Menu -->
     <string name="swipe_card_menu_text">Swipe Card</string>

@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,8 +18,12 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import net.authorize.Merchant;
@@ -32,11 +37,6 @@ import net.authorize.Merchant;
 //import net.authorize.xml.MessageType;
 
 
-
-
-
-
-
 import java.util.ArrayList;
 
 /**
@@ -44,7 +44,7 @@ import java.util.ArrayList;
 public class LoginActivity extends Activity { //change to AuthNetActivityBase
     /** A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system. */
-	private ArrayList<String> dummyCredentials = new ArrayList<String>();
+    private ArrayList<String> dummyCredentials = new ArrayList<String>();
 
 
     /** The default email to populate the email field with. */
@@ -69,8 +69,9 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        setupUI(findViewById(R.id.login_form));
         getActionBar().show();
+
         // Set up the login form.
         mLoginID = getIntent().getStringExtra(EXTRA_LOGINID);
         mLoginIDView = (EditText) findViewById(R.id.loginID);
@@ -85,7 +86,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                     public boolean onEditorAction(TextView textView, int id,
                             KeyEvent keyEvent) {
                         if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
-                        	Log.d("Tricia's Tag","onEditorAction");
+                            Log.d("Tricia's Tag","onEditorAction");
                             attemptLogin();
                             return true;
                         }
@@ -102,7 +103,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                    	Log.d("Tricia's Tag", "onClick");
+                        Log.d("Tricia's Tag", "onClick");
                         attemptLogin();
                     }
                 });
@@ -111,7 +112,10 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
     /** Disable the back button. */
     @Override
     public void onBackPressed() {
-    	
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
     }
     
     @Override
@@ -124,48 +128,22 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	//handle item selection
-    	if (item.getItemId() == R.id.dev_info) {
-    		//TODO: HANDLE DEV INFO
-    		openDevInfo();
-    		return true;
-    	} else {
-    		return super.onOptionsItemSelected(item);
-    	}
+        //handle item selection
+        if (item.getItemId() == R.id.dev_info) {
+			DialogFragment devInfoFragment = DevInfoFragment.newInstance();
+			devInfoFragment.show(getFragmentManager(), "devInfo");
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
     
-    /** Opens an AlertDialog with developer information. */
-    public void openDevInfo() {
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	TextView title = new TextView(this);
-    	title.setText("Developer Information");
-    	title.setGravity(Gravity.CENTER);
-    	title.setPadding(10, 10, 10, 10);
-    	title.setTextColor(Color.WHITE);
-    	title.setTextSize(20);
-    	builder.setCustomTitle(title);
-    	String message = "This application utilizes the Authorize.Net SDK available on GitHub"
-    			+ " under the username AuthorizeNet. Authorize.Net is a wholly owned subsidiary of Visa.";
-    	builder.setMessage(message).setNeutralButton("OK", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				
-			}
-		});
-    	AlertDialog info = builder.create();
-    	info.show();
-    	//TODO: center the title
-    	TextView messageView = (TextView) info.findViewById(android.R.id.message);
-    	messageView.setTextSize(13);
-    	messageView.setGravity(Gravity.CENTER);
-    }
 
     /** Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made. */
     public void attemptLogin() {
-    	Log.d("Tricia's Tag", "entering attemptLogin");
+        Log.d("Tricia's Tag", "entering attemptLogin");
         if (mAuthTask != null) {
             return;
         }
@@ -210,6 +188,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
             showProgress(true);
             mAuthTask = new UserLoginTask();
             mAuthTask.execute((Void) null);
+            Log.d("errorsigh","hello");
         }
     }
 
@@ -258,10 +237,9 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-        	dummyCredentials.add("test1@visa.com:test1password");
-        	dummyCredentials.add("test2@visa.com:test2password");
+            dummyCredentials.add("test1@visa.com:test1password");
+            dummyCredentials.add("test2@visa.com:test2password");
             Log.d("Tricia's Tag", "first print: " + dummyCredentials.toString());
-        	boolean contains = false;
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
@@ -274,14 +252,13 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mLoginID)) {
                     // Account exists, return true if the password matches.
-                	contains = true;
                     return pieces[1].equals(mPassword);
                 }
             }
             // if account does not exist, create account and return true
             /** if (!contains) {
-            	dummyCredentials.add(mLoginID + ":" + mPassword);
-            	Log.d("Tricia's Tag", "second print: " + dummyCredentials.toString());
+                dummyCredentials.add(mLoginID + ":" + mPassword);
+                Log.d("Tricia's Tag", "second print: " + dummyCredentials.toString());
             } */
             return true;
             // TODO: register the new account here.
@@ -296,8 +273,8 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
 
             if (success) {
                 //TODO: Link to the credit card page
-            	Intent chargeCardIntent = new Intent(LoginActivity.this, ChargeCardActivity.class);
-            	startActivity(chargeCardIntent);
+                Intent chargeCardIntent = new Intent(LoginActivity.this, ChargeCardActivity.class);
+                startActivity(chargeCardIntent);
                 finish();
 
             } else {
@@ -305,12 +282,41 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                         .setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }
+            Log.d("Tricia's tag", "i reached the end of postexecute");
         }
 
         @Override
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+    }
+    
+    // Utility functions for LoginActivity.java. */
+    /** Dismisses the softkey board outside of EditText area. */
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
+    
+    /** Iterates through each View in this activity and checks if it is an
+     * instance of EditText and if it is not, register a setOnTouchlistener
+     * to that component. */
+    public void setupUI(View view) {
+        if(!(view instanceof EditText)) {
+            view.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    hideSoftKeyboard(LoginActivity.this);
+                    return false;
+                }
+            });
+        }
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                setupUI(innerView);
+            }
         }
     }
 }

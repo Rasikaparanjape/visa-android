@@ -3,7 +3,7 @@
     tools:context="${com.visa.visasampleapplication}.${LoginActivity}" >
     <item
         android:id="@+id/dev_info"
-        android:icon="@drawable/dev_info"
+        android:icon="@drawable/ic_dev_info"
         android:title="@string/dev_info"
         android:showAsAction="ifRoom" />
 </menu>
