@@ -4,29 +4,25 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-import net.authorize.Merchant;
 //import net.authorize.android.AuthNetActivityBase;
 //import net.authorize.android.SimpleActivity;
 //import net.authorize.auth.PasswordAuthentication;
@@ -35,6 +31,7 @@ import net.authorize.Merchant;
 //import net.authorize.data.mobile.MobileDevice;
 //import net.authorize.util.StringUtils;
 //import net.authorize.xml.MessageType;
+
 
 
 import java.util.ArrayList;
@@ -56,8 +53,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
     /** Values for loginID and password at the time of the login attempt. */
     private String mLoginID;
     private String mPassword;
-    
-    
+
     /** UI references. */
     private EditText mLoginIDView;
     private EditText mPasswordView;
@@ -86,7 +82,6 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                     public boolean onEditorAction(TextView textView, int id,
                             KeyEvent keyEvent) {
                         if (id == R.id.login || id == EditorInfo.IME_ACTION_DONE) {
-                            Log.d("Tricia's Tag","onEditorAction");
                             attemptLogin();
                             return true;
                         }
@@ -103,7 +98,6 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.d("Tricia's Tag", "onClick");
                         attemptLogin();
                     }
                 });
@@ -122,16 +116,14 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.login, menu);
-        Log.d("Tricia's Tag", "Inflated the menu");
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //handle item selection
         if (item.getItemId() == R.id.dev_info) {
-			DialogFragment devInfoFragment = DevInfoFragment.newInstance();
-			devInfoFragment.show(getFragmentManager(), "devInfo");
+            DialogFragment devInfoFragment = DevInfoFragment.newInstance();
+            devInfoFragment.show(getFragmentManager(), "devInfo");
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -143,7 +135,6 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made. */
     public void attemptLogin() {
-        Log.d("Tricia's Tag", "entering attemptLogin");
         if (mAuthTask != null) {
             return;
         }
@@ -180,7 +171,19 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
+    		final EditText errorEditText = (EditText) focusView;
             focusView.requestFocus();
+            errorEditText.setOnKeyListener(new OnKeyListener() {
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event) {
+            		if (keyCode == KeyEvent.KEYCODE_DEL) {
+            			errorEditText.setText("");
+            			return true;
+            		}
+					return false;
+				}
+            	
+            });
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
@@ -188,7 +191,6 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
             showProgress(true);
             mAuthTask = new UserLoginTask();
             mAuthTask.execute((Void) null);
-            Log.d("errorsigh","hello");
         }
     }
 
@@ -237,9 +239,8 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-            dummyCredentials.add("test1@visa.com:test1password");
-            dummyCredentials.add("test2@visa.com:test2password");
-            Log.d("Tricia's Tag", "first print: " + dummyCredentials.toString());
+            dummyCredentials.add("test1@visa.com:test1");
+            dummyCredentials.add("test2@visa.com:test2");
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
@@ -255,11 +256,6 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                     return pieces[1].equals(mPassword);
                 }
             }
-            // if account does not exist, create account and return true
-            /** if (!contains) {
-                dummyCredentials.add(mLoginID + ":" + mPassword);
-                Log.d("Tricia's Tag", "second print: " + dummyCredentials.toString());
-            } */
             return true;
             // TODO: register the new account here.
         }
@@ -267,12 +263,9 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
         
         @Override
         protected void onPostExecute(final Boolean success) {
-            Log.d("Tricia's tag", "onPostExecute");
             mAuthTask = null;
             showProgress(false);
-
             if (success) {
-                //TODO: Link to the credit card page
                 Intent chargeCardIntent = new Intent(LoginActivity.this, ChargeCardActivity.class);
                 startActivity(chargeCardIntent);
                 finish();
@@ -282,7 +275,6 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
                         .setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }
-            Log.d("Tricia's tag", "i reached the end of postexecute");
         }
 
         @Override
@@ -292,8 +284,9 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
         }
     }
     
-    // Utility functions for LoginActivity.java. */
-    /** Dismisses the softkey board outside of EditText area. */
+    // Utility functions for LoginActivity.java.
+
+    /** Dismisses the soft-key board outside of EditText area. */
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
@@ -320,3 +313,4 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
         }
     }
 }
+

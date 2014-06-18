@@ -51,9 +51,5 @@ public class DevInfoFragment extends DialogFragment {
     	AlertDialog info = builder.create();
     	setCancelable(false);
     	return info;
-    	//TODO: center the title
-    	//TextView messageView = (TextView) info.findViewById(android.R.id.message);
-    	//messageView.setTextSize(13);
-    	//messageView.setGravity(Gravity.CENTER);
 	}
 }

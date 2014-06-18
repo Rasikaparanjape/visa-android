@@ -86,32 +86,38 @@ public final class R {
     }
     public static final class string {
         public static final int CVV2=0x7f050005;
-        public static final int action_log_in=0x7f050011;
+        public static final int action_log_in=0x7f050017;
         /**  Strings related to Logout 
          */
-        public static final int action_log_out=0x7f050019;
-        public static final int action_settings=0x7f05001c;
+        public static final int action_log_out=0x7f05001f;
+        public static final int action_settings=0x7f050022;
         /**  Strings related to Application Information 
          */
         public static final int app_name=0x7f050000;
+        public static final int cancel=0x7f05000e;
         /**  Strings related to Enter Card Information page 
          */
         public static final int card_number=0x7f050003;
         public static final int charge_card=0x7f050009;
+        public static final int completed_transaction=0x7f05000d;
         /**  String related to menu 
          */
         public static final int dev_info=0x7f050002;
-        public static final int enter_card_menu_text=0x7f05000e;
-        public static final int error_field_required=0x7f050016;
-        public static final int error_incorrect_password=0x7f050015;
-        public static final int error_invalid_loginID=0x7f050013;
-        public static final int error_invalid_password=0x7f050014;
+        public static final int enter_card_menu_text=0x7f050014;
+        public static final int error_field_required=0x7f05001c;
+        public static final int error_incorrect_password=0x7f05001b;
+        public static final int error_invalid_card_number=0x7f05000f;
+        public static final int error_invalid_cvv2=0x7f050011;
+        public static final int error_invalid_expdate=0x7f050010;
+        public static final int error_invalid_loginID=0x7f050019;
+        public static final int error_invalid_password=0x7f05001a;
+        public static final int error_invalid_zipcode=0x7f050012;
         public static final int expiration_date=0x7f050004;
-        public static final int login_progress_signing_in=0x7f050012;
+        public static final int login_progress_signing_in=0x7f050018;
         /**  Strings related to Login 
          */
-        public static final int prompt_loginID=0x7f05000f;
-        public static final int prompt_password=0x7f050010;
+        public static final int prompt_loginID=0x7f050015;
+        public static final int prompt_password=0x7f050016;
         public static final int sim_card=0x7f05000a;
         /**  Strings related to Swipe Card Page 
          */
@@ -121,12 +127,12 @@ public final class R {
         public static final int swipe_card_alert_message=0x7f05000c;
         /**  Strings related to Charge/ Swipe Options Menu 
          */
-        public static final int swipe_card_menu_text=0x7f05000d;
-        public static final int title_activity_charge_card=0x7f05001b;
-        public static final int title_activity_login=0x7f050018;
+        public static final int swipe_card_menu_text=0x7f050013;
+        public static final int title_activity_charge_card=0x7f050021;
+        public static final int title_activity_login=0x7f05001e;
         public static final int title_item_detail=0x7f050001;
-        public static final int title_item_list=0x7f05001a;
-        public static final int visa_logo=0x7f050017;
+        public static final int title_item_list=0x7f050020;
+        public static final int visa_logo=0x7f05001d;
         public static final int zip_code=0x7f050006;
     }
     public static final class style {

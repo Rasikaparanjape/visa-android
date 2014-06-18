@@ -21,6 +21,12 @@
     <string name="sim_card">Simulate Credit Card</string>
     <string name="swipe_card_alert">Please swipe your credit card</string>
     <string name="swipe_card_alert_message">Processing credit card information&#8230;</string>
+    <string name="completed_transaction">Your transaction has been processed</string>
+    <string name="cancel">Cancel</string>
+    <string name="error_invalid_card_number">This card number is invalid</string>
+    <string name="error_invalid_expdate">This expiration is invalid</string>
+    <string name="error_invalid_cvv2">This cvv2 is invalid</string>
+    <string name="error_invalid_zipcode">This zipcode is invalid</string>
 
     <!-- Strings related to Charge/ Swipe Options Menu -->
     <string name="swipe_card_menu_text">Swipe Card</string>
