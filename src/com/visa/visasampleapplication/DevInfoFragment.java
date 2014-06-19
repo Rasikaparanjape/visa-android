@@ -31,7 +31,7 @@ public class DevInfoFragment extends DialogFragment {
     	titleView.setText(title);
     	titleView.setGravity(Gravity.CENTER);
     	titleView.setPadding(15, 15, 15, 15);
-    	titleView.setTextColor(Color.WHITE);
+    	//titleView.setTextColor(Color.WHITE);
     	titleView.setTextSize(20);
     	builder.setCustomTitle(titleView);
     	

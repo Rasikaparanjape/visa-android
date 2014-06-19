@@ -178,7 +178,7 @@ public class ChargeCardActivity extends Activity {
             TextView titleView = new TextView(getActivity());
             titleView.setText(title);
             titleView.setPadding(15,15,15,15);
-            titleView.setTextColor(Color.WHITE);
+            //titleView.setTextColor(Color.WHITE);
             titleView.setTextSize(20);
             titleView.setGravity(Gravity.CENTER);
             alert.setCustomTitle(titleView);
@@ -188,7 +188,8 @@ public class ChargeCardActivity extends Activity {
             messageView.setTextSize(15);
             messageView.setPadding(15, 15, 15, 15);
             messageView.setGravity(Gravity.CENTER);
-            alert.setView(messageView);
+            alert.setMessage(message);
+            //alert.setView(messageView);
             alert.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new Dialog.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
