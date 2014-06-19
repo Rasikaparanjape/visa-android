@@ -329,12 +329,12 @@ public class ChargeCardActivity extends Activity {
         if (cancel) {
             focusView.requestFocus();
         } else {
-            displayCompletionToast();
+            displayToast();
         }
     }
 
 	/** Displays a toast after the transaction has been processed and dismisses the keyboard. */
-    public void displayCompletionToast() {
+    public void displayToast() {
     	hideSoftKeyboard(this);
     	Context currentContext = getApplicationContext();
     	int text = R.string.completed_transaction;

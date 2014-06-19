@@ -5,12 +5,18 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,15 +40,23 @@ import android.widget.TextView;
 
 
 
+
+
+
+import android.widget.Toast;
+
 import java.util.ArrayList;
 
+import net.authorize.Merchant;
+import net.authorize.auth.PasswordAuthentication;
+import net.authorize.auth.SessionTokenAuthentication;
+import net.authorize.data.mobile.MobileDevice;
+import net.authorize.mobile.TransactionType;
+import net.authorize.mobile.Transaction;
+import net.authorize.mobile.Result;
 /**
  * Activity which displays a login screen to the user. */
 public class LoginActivity extends Activity { //change to AuthNetActivityBase
-    /** A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system. */
-    private ArrayList<String> dummyCredentials = new ArrayList<String>();
-
 
     /** The default email to populate the email field with. */
     public static final String EXTRA_LOGINID = "com.example.android.authenticatordemo.extra.LOGINID";
@@ -60,6 +74,12 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
     private View mLoginFormView;
     private View mLoginStatusView;
     private TextView mLoginStatusMessageView;
+    
+    /** Strings related to login authentication. */
+    private String deviceNumber = "";
+    private String deviceID = "";
+    private String deviceInfo = "";
+    private Merchant _merchant = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +87,12 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
         setContentView(R.layout.activity_login);
         setupUI(findViewById(R.id.login_form));
         getActionBar().show();
-
+        
+        //Log.d("hello", "this is id: " + String.valueOf(((TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId()));
+        //Log.d("hello", "this is CDMA" + String.valueOf(TelephonyManager.PHONE_TYPE_CDMA));
+        //Log.d("hello", "this is GSM: " + String.valueOf(TelephonyManager.PHONE_TYPE_GSM));
+        
+        
         // Set up the login form.
         mLoginID = getIntent().getStringExtra(EXTRA_LOGINID);
         mLoginIDView = (EditText) findViewById(R.id.loginID);
@@ -235,40 +260,49 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
 
     /** Represents an asynchronous login/registration task used to authenticate
      * the user. */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, Integer> {
+    	Result loginResult;
+    	public static final int RESULT_FAILURE           = -2;
         @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-            dummyCredentials.add("test1@visa.com:test1");
-            dummyCredentials.add("test2@visa.com:test2");
+        protected Integer doInBackground(Void... params) {
+            // continue authenticate login
+        	authenticate(findViewById(R.id.login_form));
+            int loginCode;
+            try {
+            	Transaction currentTransaction = _merchant.createMobileTransaction(TransactionType.MOBILE_DEVICE_LOGIN);
+            	MobileDevice mobileDevice = MobileDevice.createMobileDevice(deviceID, deviceInfo, deviceNumber);
+            	currentTransaction.setMobileDevice(mobileDevice);
+            	loginResult = (Result) _merchant.postTransaction(currentTransaction);
+            	//TODO: register device is the device hasn't been registered
+            	loginCode = loginResult.isResponseOk() ? RESULT_OK : RESULT_FAILURE;
+            } catch (Exception e) {
+            	loginCode = RESULT_FAILURE;
+            }
+
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
-                return false;
+                return RESULT_FAILURE;
             }
-            //TODO: ADD DATA NETWORK CONNECTED STUFF 
-
-            for (String credential : dummyCredentials) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mLoginID)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-            return true;
-            // TODO: register the new account here.
+            return loginCode;
         }
 
         
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final Integer success) {
             mAuthTask = null;
             showProgress(false);
-            if (success) {
-                Intent chargeCardIntent = new Intent(LoginActivity.this, ChargeCardActivity.class);
-                startActivity(chargeCardIntent);
-                finish();
+            if (success == -1) {
+            	if (loginResult.isOk()) {
+            		String sessionToken = loginResult.getSessionToken();
+            		SessionTokenAuthentication sessionTokenAuthentication = SessionTokenAuthentication.createMerchantAuthentication(_merchant.getMerchantAuthentication().getName(), loginResult.getSessionToken(), deviceID);
+            		_merchant.setMerchantAuthentication(sessionTokenAuthentication);
+            		//setResultIntent();
+                    Intent chargeCardIntent = new Intent(LoginActivity.this, ChargeCardActivity.class);
+                    startActivity(chargeCardIntent);
+                    finish();
+            	}
 
             } else {
                 mPasswordView
@@ -312,5 +346,41 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
             }
         }
     }
+
+	/** Displays a toast after the transaction has been processed and dismisses the keyboard. */
+    public void displayToast(String message) {
+    	hideSoftKeyboard(this);
+    	Context currentContext = getApplicationContext();
+    	String text = message;
+    	int duration = Toast.LENGTH_SHORT;
+    	Toast completedTransactionToast = Toast.makeText(currentContext, text, duration);
+    	completedTransactionToast.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL, 0, 0);
+    	completedTransactionToast.show();
+	}
+    // Functions related to the SDK
+    
+    /** Authenticates the username and password. */
+    public void authenticate(View view) {
+    	if (checkNetwork(this) != null) {
+    		String deviceInfo;
+    		TelephonyManager telephoneManager;
+    		WifiManager wifiManager;
+    		String loginID = ((EditText) findViewById(R.id.loginID)).getText().toString();
+    		String password = ((EditText) findViewById(R.id.password)).getText().toString();
+    		//TODO: set network identifier; or hardcode device ID, DEVICE NUMBER and device info
+    		PasswordAuthentication loginCredentials = PasswordAuthentication.createMerchantAuthentication(loginID, password, deviceID); // should i hardcode the device ID
+    		_merchant = Merchant.createMerchant(env, loginCredentials); //TODO: FIX ENVIRONMENT
+    		_merchant.setDuplicateTxnWindowSeconds(30);
+    	} else {
+    		displayToast(getString(R.string.error_network));
+    	}
+    }
+    
+    /** Returns the NetworkInfo of the current context. */
+    public static NetworkInfo checkNetwork(Context context) {
+    	NetworkInfo network = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+    	return network;
+    }
+    
 }
 

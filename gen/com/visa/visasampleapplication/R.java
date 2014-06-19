@@ -89,8 +89,8 @@ public final class R {
         public static final int action_log_in=0x7f050017;
         /**  Strings related to Logout 
          */
-        public static final int action_log_out=0x7f05001f;
-        public static final int action_settings=0x7f050022;
+        public static final int action_log_out=0x7f050020;
+        public static final int action_settings=0x7f050023;
         /**  Strings related to Application Information 
          */
         public static final int app_name=0x7f050000;
@@ -112,6 +112,7 @@ public final class R {
         public static final int error_invalid_loginID=0x7f050019;
         public static final int error_invalid_password=0x7f05001a;
         public static final int error_invalid_zipcode=0x7f050012;
+        public static final int error_network=0x7f05001f;
         public static final int expiration_date=0x7f050004;
         public static final int login_progress_signing_in=0x7f050018;
         /**  Strings related to Login 
@@ -128,10 +129,10 @@ public final class R {
         /**  Strings related to Charge/ Swipe Options Menu 
          */
         public static final int swipe_card_menu_text=0x7f050013;
-        public static final int title_activity_charge_card=0x7f050021;
+        public static final int title_activity_charge_card=0x7f050022;
         public static final int title_activity_login=0x7f05001e;
         public static final int title_item_detail=0x7f050001;
-        public static final int title_item_list=0x7f050020;
+        public static final int title_item_list=0x7f050021;
         public static final int visa_logo=0x7f05001d;
         public static final int zip_code=0x7f050006;
     }

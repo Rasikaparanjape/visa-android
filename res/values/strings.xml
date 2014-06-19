@@ -43,7 +43,7 @@
     <string name="error_field_required">This field is required</string>
     <string name="visa_logo">Visa Logo</string>
     <string name="title_activity_login">Sign In</string>
-
+    <string name="error_network">Unable to complete request. No internet connection.</string>
 
     <!-- Strings related to Logout -->
     <string name="action_log_out">Log Out</string>
