@@ -317,7 +317,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
             showProgress(false);
         }
     }
-    
+
     // Utility functions for LoginActivity.java.
 
     /** Dismisses the soft-key board outside of EditText area. */
