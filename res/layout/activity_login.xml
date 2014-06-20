@@ -59,35 +59,50 @@
                 android:id="@+id/loginID"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/image_view_border"
+                android:ems="10"
                 android:hint="@string/prompt_loginID"
                 android:inputType="text"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:padding="10dp"
+                android:singleLine="true">
+                <requestFocus />
+            </EditText>
 
             <EditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/image_view_border"
+                android:ems="10"
                 android:fontFamily="Arial"
                 android:hint="@string/prompt_password"
                 android:imeActionId="@+id/login"
                 android:imeOptions="actionUnspecified"
                 android:inputType="textPassword"
                 android:maxLines="1"
+                android:padding="10dp"
                 android:singleLine="true" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:paddingTop="12dp" >
+                android:focusable="false" >
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="2dip"
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginLeft="4dip"
-                    android:layout_marginRight="4dip"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
                     android:background="?android:attr/dividerHorizontal" />
 
                 <Button
@@ -95,12 +110,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentBottom="true"
-                    android:layout_alignParentLeft="true"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:paddingLeft="32dp"
-                    android:paddingRight="32dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:textColor="#FFFFFF"
+                    android:textAllCaps="true"
+                    android:background="@drawable/button_bg"
                     android:text="@string/action_log_in" />
+
             </RelativeLayout>
+
         </LinearLayout>
     </ScrollView>
 </merge>
