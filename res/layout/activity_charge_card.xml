@@ -4,7 +4,7 @@
     android:fillViewport="true"
     android:layout_height="match_parent">
     
-    <RelativeLayout
+   <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingTop="50dp">
@@ -58,23 +58,22 @@
             android:padding="10dp"
             android:layout_marginLeft="2.5dp"
             android:layout_marginRight="2.5dp" />
-
+ 
         <EditText
             android:id="@+id/zip_code"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@id/card_number"
-            android:imeOptions="actionDone"
-            android:maxLength="5"
-            android:layout_toRightOf="@id/CVV2"
+            android:layout_marginRight="15dp"
+            android:layout_toRightOf="@+id/question_mark"
+            android:background="@drawable/image_view_border"
             android:gravity="center"
             android:hint="@string/zip_code"
+            android:imeOptions="actionDone"
             android:inputType="number"
-            android:background="@drawable/image_view_border"
-            android:padding="10dp"
-            android:layout_marginLeft="2.5dp"
-            android:layout_marginRight="15dp" />
+            android:maxLength="5"
+            android:padding="10dp" />
 
         <View
             android:id="@+id/view_charge_card"
@@ -115,6 +114,16 @@
             android:layout_marginRight="15dp"
             android:layout_marginBottom="10dp"
             android:textColor="#FFFFFF" />
+
+        <ImageButton
+            android:id="@+id/question_mark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/CVV2"
+            android:layout_alignTop="@+id/CVV2"
+            android:background="#00000000"
+            android:src="@drawable/ic_question_mark" />
+
     </RelativeLayout>
 
 </ScrollView>

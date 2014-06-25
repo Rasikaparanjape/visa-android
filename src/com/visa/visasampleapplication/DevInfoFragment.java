@@ -11,10 +11,9 @@ import android.widget.TextView;
 
 /**Fragment that opens an AlertDialog with developer information. */
 public class DevInfoFragment extends DialogFragment {
-	public static DevInfoFragment newInstance() {
-    	String message = "This application utilizes the Authorize.Net SDK available on GitHub"
-    			+ " under the username AuthorizeNet. Authorize.Net is a wholly owned subsidiary of Visa.";
-    	String title = "Developer Information";
+	public static DevInfoFragment newInstance(String m, String t) {
+    	String message = m;
+    	String title = t;
 		DevInfoFragment frag = new DevInfoFragment();
 		Bundle args = new Bundle();
 		args.putString("title", title);

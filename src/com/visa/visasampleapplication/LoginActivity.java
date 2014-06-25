@@ -47,6 +47,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import net.authorize.Environment;
 import net.authorize.Merchant;
 import net.authorize.auth.PasswordAuthentication;
 import net.authorize.auth.SessionTokenAuthentication;
@@ -77,22 +78,19 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
     
     /** Strings related to login authentication. */
     private String deviceNumber = "";
-    private String deviceID = "";
+    protected static String deviceID = "359691043853624";
     private String deviceInfo = "";
-    private Merchant _merchant = null;
+    protected static Merchant _merchant = null;
 
+
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         setupUI(findViewById(R.id.login_form));
         getActionBar().show();
-        
-        //Log.d("hello", "this is id: " + String.valueOf(((TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId()));
-        //Log.d("hello", "this is CDMA" + String.valueOf(TelephonyManager.PHONE_TYPE_CDMA));
-        //Log.d("hello", "this is GSM: " + String.valueOf(TelephonyManager.PHONE_TYPE_GSM));
-        
-        
+
         // Set up the login form.
         mLoginID = getIntent().getStringExtra(EXTRA_LOGINID);
         mLoginIDView = (EditText) findViewById(R.id.loginID);
@@ -147,7 +145,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.dev_info) {
-            DialogFragment devInfoFragment = DevInfoFragment.newInstance();
+            DialogFragment devInfoFragment = DevInfoFragment.newInstance(getString(R.string.dev_info_message), getString(R.string.dev_info_title));
             devInfoFragment.show(getFragmentManager(), "devInfo");
             return true;
         } else {
@@ -273,7 +271,6 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
             	MobileDevice mobileDevice = MobileDevice.createMobileDevice(deviceID, deviceInfo, deviceNumber);
             	currentTransaction.setMobileDevice(mobileDevice);
             	loginResult = (Result) _merchant.postTransaction(currentTransaction);
-            	//TODO: register device is the device hasn't been registered
             	loginCode = loginResult.isResponseOk() ? RESULT_OK : RESULT_FAILURE;
             } catch (Exception e) {
             	loginCode = RESULT_FAILURE;
@@ -296,9 +293,8 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
             if (success == -1) {
             	if (loginResult.isOk()) {
             		String sessionToken = loginResult.getSessionToken();
-            		SessionTokenAuthentication sessionTokenAuthentication = SessionTokenAuthentication.createMerchantAuthentication(_merchant.getMerchantAuthentication().getName(), loginResult.getSessionToken(), deviceID);
+            		SessionTokenAuthentication sessionTokenAuthentication = SessionTokenAuthentication.createMerchantAuthentication(_merchant.getMerchantAuthentication().getName(), sessionToken, deviceID);
             		_merchant.setMerchantAuthentication(sessionTokenAuthentication);
-            		//setResultIntent();
                     Intent chargeCardIntent = new Intent(LoginActivity.this, ChargeCardActivity.class);
                     startActivity(chargeCardIntent);
                     finish();
@@ -359,27 +355,30 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
 	}
     // Functions related to the SDK
     
-    /** Authenticates the username and password. */
+    /** Authenticates the user-name and password. */
     public void authenticate(View view) {
-    	if (checkNetwork(this) != null) {
-    		String deviceInfo;
-    		TelephonyManager telephoneManager;
-    		WifiManager wifiManager;
+    	// original authenticate sets deviceID, device telephone number and device description
+    //	if (checkNetwork(this)) {
     		String loginID = ((EditText) findViewById(R.id.loginID)).getText().toString();
     		String password = ((EditText) findViewById(R.id.password)).getText().toString();
-    		//TODO: set network identifier; or hardcode device ID, DEVICE NUMBER and device info
-    		PasswordAuthentication loginCredentials = PasswordAuthentication.createMerchantAuthentication(loginID, password, deviceID); // should i hardcode the device ID
-    		_merchant = Merchant.createMerchant(env, loginCredentials); //TODO: FIX ENVIRONMENT
+    		PasswordAuthentication loginCredentials = PasswordAuthentication.createMerchantAuthentication(loginID, password, deviceID);
+    		_merchant = Merchant.createMerchant(Environment.SANDBOX, loginCredentials);
     		_merchant.setDuplicateTxnWindowSeconds(30);
-    	} else {
-    		displayToast(getString(R.string.error_network));
-    	}
+    	//} else {
+    	//	displayToast(getString(R.string.error_network));
+    	//}
     }
     
     /** Returns the NetworkInfo of the current context. */
-    public static NetworkInfo checkNetwork(Context context) {
-    	NetworkInfo network = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-    	return network;
+    public static boolean checkNetwork(Context context) {
+    	ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    	NetworkInfo network = cm.getActiveNetworkInfo();
+    	if (network != null) { 
+    		return network.isAvailable();
+    	}
+    	return false;
+    	//NetworkInfo network = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+    	//return network;
     }
     
 }

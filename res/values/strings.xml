@@ -27,10 +27,18 @@
     <string name="error_invalid_expdate">This expiration is invalid</string>
     <string name="error_invalid_cvv2">This cvv2 is invalid</string>
     <string name="error_invalid_zipcode">This zipcode is invalid</string>
-
+    <string name="cvv2_info_message">The security code (CVV2) is a unique three or four digit number located on the back of a credit card</string>
+    <string name="cvv2_info_title">What is a CVV2?</string>
+    
     <!-- Strings related to Charge/ Swipe Options Menu -->
     <string name="swipe_card_menu_text">Swipe Card</string>
     <string name="enter_card_menu_text">Enter Card Information</string>
+    
+    <!-- Strings related to Developer information -->
+    <string name="dev_info_message">This application utilizes the Authorize.Net SDK
+         available on GitHub under the username AuthorizeNet. Authorize.Net is a
+          wholly owned subsidiary of Visa.</string>
+    <string name="dev_info_title">Developer Information</string>
 
     <!-- Strings related to Login -->
     <string name="prompt_loginID">Login ID</string>
@@ -50,5 +58,9 @@
     <string name="title_item_list">Items</string>
     <string name="title_activity_charge_card">Charge Credit Card</string>
     <string name="action_settings">Settings</string>
+    
+    <!-- Extra strings to be removed later -->
+    <string name="test_username">mobilecp1</string>
+    <string name="test_password">CPMobile2</string>
 
 </resources>
