@@ -78,7 +78,7 @@ public class LoginActivity extends Activity { //change to AuthNetActivityBase
     
     /** Strings related to login authentication. */
     private String deviceNumber = "";
-    protected static String deviceID = "359691043853624";
+    protected static String deviceID = "358347040811237";//"359691043853624";
     private String deviceInfo = "";
     protected static Merchant _merchant = null;
 

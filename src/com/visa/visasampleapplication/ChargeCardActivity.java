@@ -2,27 +2,22 @@ package com.visa.visasampleapplication;
 
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Calendar;
 
-import com.visa.visasampleapplication.LoginActivity.UserLoginTask;
-import com.visa.visasampleapplication.PaymentTransaction.IAnetTransactionCallBackProcessAIMPayment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -43,49 +38,64 @@ import android.widget.Toast;
 import net.authorize.TransactionType;
 import net.authorize.aim.Result;
 import net.authorize.aim.Transaction;
-import net.authorize.aim.cardpresent.DeviceType;
-import net.authorize.aim.cardpresent.MarketType;
-import net.authorize.auth.SessionTokenAuthentication;
 import net.authorize.data.Order;
 import net.authorize.data.creditcard.CreditCard;
 import net.authorize.util.Luhn;
+import net.authorize.data.Address;
 import net.authorize.data.Customer;
-import net.authorize.data.Order;
 import net.authorize.data.OrderItem;
+import net.authorize.data.ShippingCharges;
 
+
+/** Activity which displays screen to enter credit card information. */
 public class ChargeCardActivity extends Activity {
-    private static final int CREDIT_CARD_LENGTH = 16;
     private static final int CREDIT_CARD_LENGTH_W_SPACE = 19;
-    
-	private EditText cardNumber;
+
+    /** Credit Card Information */
+    private EditText cardNumber;
     private EditText expDate;
     private EditText cvv2;
     private EditText zipcode;
-    
+
+    /** Credit Card Number converted into String */
     private String cardNumText;
-    
+
+    /** Current length of the card number in real time */
     private int cardNumberLen = 0;
+
+    /** Current length of the expiration date in real time */
     private int expDateLen = 0;
-    
+
+    /** Credit Card */
     private static CreditCard creditCard;
+
+    /** Test Order - used only for testing */
     private static Order testOrder;
+
+    /** Test Order details - used only for testing */
+    private BigDecimal[] testOrderInfo;
+
+    /** TransactionTask to be executed */
+    protected ExecuteTransactionTask transactionTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        /** Setup login page */
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_charge_card);
         setupUI(findViewById(R.id.charge_card_form));
         getActionBar().show();
-        
-        // Auto-format credit card text field at real time
+
+
         cardNumber = (EditText) findViewById(R.id.card_number);
+        /** Auto-format credit card text field at real time */
         cardNumber.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) { }
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 cardNumText = cardNumber.getText().toString();
                 cardNumberLen = cardNumber.getText().length();
-                if ((cardNumberLen == 5 || cardNumberLen == 10 || cardNumberLen == 15) 
+                if ((cardNumberLen == 5 || cardNumberLen == 10 || cardNumberLen == 15)
                         && !(String.valueOf(cardNumber.getText().toString().charAt(cardNumberLen - 1))
                                 .equals(" "))) {
                     cardNumber.setText(new StringBuilder(cardNumText).insert(cardNumText.length() - 1, " ").toString());
@@ -95,27 +105,26 @@ public class ChargeCardActivity extends Activity {
                     return;
                 }
                 if ((cardNumberLen == CREDIT_CARD_LENGTH_W_SPACE)) {
-                	cardNumText = cardNumber.getText().toString();
-                	cardNumText.replace(" ", "");
-                	Log.d("card number","card number: " + cardNumText);
-                	if (Luhn.isCardValid(cardNumText)) {
-                		Drawable checkMark = getResources().getDrawable(R.drawable.ic_check_mark);
-                		Bitmap checkMarkBitmap = ((BitmapDrawable) checkMark).getBitmap();
-                		Drawable scaledCheckMark = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(checkMarkBitmap, 50, 50, true));
-                		cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledCheckMark, null);
-                	} else {
-                		Drawable delete = getResources().getDrawable(R.drawable.ic_delete);
-                		Bitmap deleteBitmap = ((BitmapDrawable) delete).getBitmap();
-                		Drawable scaledDelete = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(deleteBitmap, 50, 50, true));
-                		cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledDelete, null);
-                	}
+                    cardNumText = cardNumber.getText().toString();
+                    cardNumText.replace(" ", "");
+                    if (Luhn.isCardValid(cardNumText)) {
+                        Drawable checkMark = getResources().getDrawable(R.drawable.ic_check_mark);
+                        Bitmap checkMarkBitmap = ((BitmapDrawable) checkMark).getBitmap();
+                        Drawable scaledCheckMark = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(checkMarkBitmap, 50, 50, true));
+                        cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledCheckMark, null);
+                    } else {
+                        Drawable delete = getResources().getDrawable(R.drawable.ic_delete);
+                        Bitmap deleteBitmap = ((BitmapDrawable) delete).getBitmap();
+                        Drawable scaledDelete = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(deleteBitmap, 50, 50, true));
+                        cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledDelete, null);
+                    }
                 } else {
-                	cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+                    cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
                 }
-            }    
+            }
         });
 
-        // Auto-format expiration date at real time
+        /** Auto-format expiration date at real time */
         expDate = (EditText) findViewById(R.id.expiration_date);
         expDate.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) { }
@@ -132,8 +141,8 @@ public class ChargeCardActivity extends Activity {
                 }
             }
         });
-        
-        // respond to swipe card button
+
+        /** Respond to swipe card button */
         findViewById(R.id.swipe_card_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,6 +151,8 @@ public class ChargeCardActivity extends Activity {
                 //TODO: PROCESS SWIPE CARD
             }
         });
+
+        /** Displays CVV2 information */
         cvv2 = (EditText) findViewById(R.id.CVV2);
         findViewById(R.id.question_mark).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,137 +161,34 @@ public class ChargeCardActivity extends Activity {
                 cvv2Info.show(getFragmentManager(), "swipecard");
             }
         });
-        // response correlated to pressing submit on the keypad
+
+        /** Respond to Done on the keypad */
         zipcode = (EditText) findViewById(R.id.zip_code);
         zipcode
             .setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                
+
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
                         attemptSubmit();
                         processCreditCardInfo();
+                        startTransaction();
                         return true;
                     }
                     return false;
                 }
             });
-        // respond to submit button
+        /** Respond to submit button */
         findViewById(R.id.submit_button).setOnClickListener(new View.OnClickListener() {
-            
+
             @Override
             public void onClick(View v) {
                 attemptSubmit();
                 processCreditCardInfo();
-                
+                startTransaction();
+
             }
         });
-    }
-    
-    
-    /** Create a test order. - for testing purposes only */
-    public void createTestOrder() {
-    	testOrder = Order.createOrder();
-    	testOrder.setTotalAmount(new BigDecimal(20));
-    	OrderItem testItem1 = OrderItem.createOrderItem();
-    	testItem1.setItemId("test1ID");
-    	testItem1.setItemName("test1Name");
-    	testItem1.setItemDescription("test1Description");
-    	testItem1.setItemQuantity(new BigDecimal(1));
-    	testItem1.setItemPrice(new BigDecimal(20));
-    	testOrder.addOrderItem(testItem1);
-    	testOrder.setPurchaseOrderNumber("9999");
-    }
-    /** Process all credit card information and continue to submit a transaction. */
-    public void processCreditCardInfo() {
-    	createTestOrder();
-    	creditCard = CreditCard.createCreditCard();
-    	String[] expDateArray = expDate.getText().toString().split("/");
-    	creditCard.setExpirationMonth(expDateArray[0]);
-    	creditCard.setExpirationYear(expDateArray[1]);
-    	creditCard.setCreditCardNumber(cardNumText);
-    	creditCard.setCardCode(cvv2.getText().toString());
-    	creditCard.setAnetDuplicatemaskedCardNumber(cardNumText.substring(12, 15)); // check dis
-    	FragmentManager manager = getFragmentManager();
-    	ProcessingPaymentFragment ppf = new ProcessingPaymentFragment();
-    	manager.beginTransaction().add(ppf, "task").commit();
-    	processTransaction(ppf.resultReceiver, getIntent());
-    	Log.d("hello", "DO YOU FUCKING FINISH YOU FUCK");
-    }
-    
-    public static void processTransaction(ResultReceiver receiver, Intent intent) {
-    	Log.d("hello", "I AM IN PROCESS TRANSACTION");
-    	Bundle transactionBundle = new Bundle();
-    	transactionBundle.putString("START_TRANSACTION", "PROCESSING_PAYMENT");
-    	receiver.send(SampleReceiver.TRANSACTION_STARTED, transactionBundle);
-    	Bundle b = new Bundle();
-    	String transactionType = "EXTRA_AIM_TRANSACTION_TYPE";
-    	//if (transactionType.equals(TransactionType.AUTH_CAPTURE.getNVPValue())) {
-    		DeviceType oldDeviceType = LoginActivity._merchant.getDeviceType();
-    		MarketType oldMarketType = LoginActivity._merchant.getMarketType();
-    		Result result = aimTransaction(net.authorize.TransactionType.AUTH_CAPTURE);
-    		LoginActivity._merchant.setDeviceType(oldDeviceType);
-    		LoginActivity._merchant.setMarketType(oldMarketType);
-    		if (result != null) {
-    			b.putSerializable("EXTRA_AIM_RESULT", result);
-    			updateSessionToken(result);
-    			receiver.send(SampleReceiver.TRANSACTION_COMPLETE, b);
-    		}
-    	//}
-    }
-    
-    private static net.authorize.aim.Result aimTransaction(TransactionType transactionType) {
-    	Log.d("hello", "I AM IN AIM TRANSACTION");
-    	if (transactionType == TransactionType.AUTH_CAPTURE) {
-    		Transaction transaction = LoginActivity._merchant.createAIMTransaction(transactionType, testOrder.getTotalAmount());
-    		transaction.setCreditCard(creditCard);
-    		transaction.setOrder(testOrder);
-    		transaction.setCustomer(Customer.createCustomer());
-    		return (Result) LoginActivity._merchant.postTransaction(transaction);
-    	} else {
-    		return null;
-    	}
-    }
-    
-    public static void updateSessionToken(net.authorize.xml.Result result) {
-    	Log.d("hello", "i am in update session");
-    	try {
-    		SessionTokenAuthentication sessionTokenAuthentication = SessionTokenAuthentication.createMerchantAuthentication(
-    				LoginActivity._merchant.getMerchantAuthentication().getName(), result.getSessionToken(), LoginActivity.deviceID);
-    		if ((result.getSessionToken() != null) && (sessionTokenAuthentication != null)) {
-    			LoginActivity._merchant.setMerchantAuthentication(sessionTokenAuthentication);;
-    		}
-    	} catch (Exception e) { }
-    }
-    public static class ProcessingPaymentFragment extends Fragment implements PaymentTransaction.IAnetTransactionCallBackProcessAIMPayment {
-    	
-    	static PaymentTransaction resultReceiver = new PaymentTransaction();
-    	
-    	@Override
-    	public void onCreate(Bundle savedInstanceState) {
-    		Log.d("hello", "DO YOU GO IN HERE");
-    		super.onCreate(savedInstanceState);
-    		setRetainInstance(true);
-    		resultReceiver = new PaymentTransaction();
-    		resultReceiver.setRecieverCallBack(this);
-    	}
-    	@Override
-    	public void onTransactionComplete(final Result result) {
-    		if (result.isApproved()) {
-    			((ChargeCardActivity) getActivity()).displayToast(getString(R.string.completed_transaction));
-    		}
-    	}
-
-		@Override
-		public void onTransactionStarted(String message) {
-			((ChargeCardActivity) getActivity()).displayToast("Transaction is being processed");
-		}
-
-		@Override
-		public void onError(String message, Exception e) {
-			((ChargeCardActivity) getActivity()).displayToast("Error");
-			
-		}
     }
 
     /** Disable the back button. */
@@ -292,20 +200,25 @@ public class ChargeCardActivity extends Activity {
         startActivity(startMain);
     }
 
+    /** Creates menu. */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.charge_card, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
+    /** Responds to each item on the menu. */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.dev_info:
-                DialogFragment devInfoFragment = DevInfoFragment.newInstance(getString(R.string.dev_info_message), getString(R.string.dev_info_title));
+                DialogFragment devInfoFragment =
+                    DevInfoFragment.newInstance(getString(R.string.dev_info_message),
+                    		getString(R.string.dev_info_title));
                 devInfoFragment.show(getFragmentManager(), "devInfo");
                 return true;
             case R.id.logout:
+                startLogout();
                 Intent logoutIntent = new Intent(this, LoginActivity.class);
                 startActivity(logoutIntent);
                 return true;
@@ -313,7 +226,171 @@ public class ChargeCardActivity extends Activity {
                 return super.onOptionsItemSelected(item);
         }
     }
-    
+
+    /** Functions for processing credit card transaction */
+
+    /** Process all credit card information and continue to submit a transaction. */
+    public void processCreditCardInfo() {
+        testOrderInfo = createTestOrder();
+        creditCard = CreditCard.createCreditCard();
+        String[] expDateArray = expDate.getText().toString().split("/");
+        creditCard.setExpirationMonth(expDateArray[0]);
+        int expYear = Integer.valueOf(expDateArray[1]) + 2000;
+        creditCard.setExpirationYear(String.valueOf(expYear));
+        creditCard.setCreditCardNumber(cardNumText);
+        creditCard.setCardCode(cvv2.getText().toString());
+        creditCard.setAnetDuplicatemaskedCardNumber(cardNumText.substring(15, 19));
+    }
+
+    /** Create a test order. - for testing purposes only */
+    public BigDecimal[] createTestOrder() {
+        testOrder = Order.createOrder();
+        testOrder.setTotalAmount(new BigDecimal(20));
+        OrderItem testItem1 = OrderItem.createOrderItem();
+        testItem1.setItemId("test1ID");
+        testItem1.setItemName("test1Name");
+        testItem1.setItemDescription("test1Description");
+        testItem1.setItemQuantity(new BigDecimal(1));
+        testItem1.setItemPrice(new BigDecimal(20));
+        testItem1.setItemTaxable(false);
+        testOrder.addOrderItem(testItem1);
+        testOrder.setPurchaseOrderNumber("9999");
+        BigDecimal[] orderInfo = new BigDecimal[2];
+        BigDecimal subtotal = new BigDecimal(0.00);
+        BigDecimal itemCount = new BigDecimal(testOrder.getOrderItems().size() + 1);
+        for (OrderItem i : testOrder.getOrderItems()) {
+            subtotal = subtotal.add(i.getItemPrice());
+        }
+        orderInfo[0] = itemCount;
+        orderInfo[1] = subtotal;
+        return orderInfo;
+    }
+
+    /** Begin executing the transaction task. */
+    public void startTransaction() {
+        transactionTask = new ExecuteTransactionTask(this);
+        transactionTask.execute();
+    }
+
+    /** An AysncTask to process the transaction request. */
+    protected class ExecuteTransactionTask extends AsyncTask<Object, Void, Void> {
+        public static final int RESULT_FAILURE           = -2;
+        protected net.authorize.aim.Result result;
+        private ChargeCardActivity activity = null;
+
+        ExecuteTransactionTask(ChargeCardActivity a) {
+            activity = a;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            displayToast("Processing transaction...");
+        }
+
+        @Override
+        protected Void doInBackground(Object... args) {
+            try {
+                Transaction authorizeTransaction = createTransaction(TransactionType.AUTH_CAPTURE);
+                result = (Result) LoginActivity._merchant.postTransaction(authorizeTransaction);
+            } catch (Exception e) { }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            setResultIntent(result);
+            if (result.isApproved()) {
+                notifyActivityLoginTaskCompleted();
+            } else {
+                displayToast("ERROR");
+            }
+        }
+
+        /** Display successful transaction fragment. */
+        private void notifyActivityLoginTaskCompleted() {
+            if (activity != null) {
+                String message = "Your transaction of $" + returnTotal() + " has successfully been processed";
+                String title = "Transaction Successful!";
+                CompletedTransactionFragment devInfoFragment = CompletedTransactionFragment.newInstance(message, title);
+                devInfoFragment.show(getFragmentManager(), "completedTransaction");
+            }
+        }
+
+        /** Sets the result as OK or FAILURE. */
+        protected void setResultIntent(net.authorize.aim.Result result) {
+            net.authorize.aim.Result aimTestResult = (net.authorize.aim.Result) result;
+            if (result != null) {
+                aimTestResult.clearRequest();
+                setResult(aimTestResult.isApproved()? RESULT_OK:RESULT_FAILURE);
+                // TODO: return to login page or swipe card again
+            }
+        }
+
+        /** Returns the total amount of the test Order. - used for testing. */
+        public BigDecimal returnTotal() {
+            return testOrderInfo[1];
+        }
+
+        /** Returns the total item count of the test order. - used for testing. */
+        public BigDecimal returnItemCount() {
+            return testOrderInfo[0];
+        }
+
+        /** Creates and returns the transaction associated with an order,
+         * sets the shipping charges, sets the tax charges, and the sets
+         * the billing address associated with a customer. */
+        public net.authorize.aim.Transaction createTransaction(TransactionType transactionType) {
+            BigDecimal total = returnTotal();
+            net.authorize.aim.Transaction transaction = LoginActivity._merchant.createAIMTransaction(transactionType, total);
+            transaction.setCreditCard(creditCard);
+
+            ShippingCharges scharges = ShippingCharges.createShippingCharges();
+            scharges.setTaxAmount(new BigDecimal(5.0));
+            scharges.setTaxItemName("Sales Tax");
+            scharges.setFreightAmount(new BigDecimal(6.0));
+            scharges.setFreightItemName("Shipping and Handling");
+
+            testOrder.setTotalAmount(total);
+            testOrder.setOrderItems(testOrder.getOrderItems());
+
+            transaction.setShippingCharges(scharges);
+            transaction.setOrder(testOrder);
+
+            Customer testCustomer = Customer.createCustomer();
+            Address billingAddress = Address.createAddress();
+            billingAddress.setZipPostalCode(zipcode.getText().toString());
+            billingAddress.setFirstName("Patrick");
+            billingAddress.setLastName("Dodd");
+            billingAddress.setAddress("Main Street");
+            billingAddress.setCity("Bellevue");
+            billingAddress.setCountry("USA");
+            billingAddress.setState("WA");
+            transaction.setCustomer(testCustomer);
+
+            return transaction;
+        }
+    }
+
+    /** Functions to logout */
+
+    /** Begins executing the logout task. */
+    public void startLogout() {
+        ExecuteLogoutTransactionTask logoutTransaction = new ExecuteLogoutTransactionTask();
+        logoutTransaction.execute();
+    }
+
+    /** Async class to process the Logout request. */
+    protected class ExecuteLogoutTransactionTask extends AsyncTask<Object, Void, Void> {
+        net.authorize.mobile.Result result;
+        @Override
+        protected Void doInBackground(Object... params) {
+            net.authorize.mobile.Transaction logoutRequestTransaction = LoginActivity._merchant.createMobileTransaction(net.authorize.mobile.TransactionType.LOGOUT);
+            result = (net.authorize.mobile.Result) LoginActivity._merchant.postTransaction(logoutRequestTransaction);
+            return null;
+        }
+    }
+
+    /** Utility functions for ChargeCardActivity.java. */
 
     /** Fragment that prompts user with a ProgressDialog (spinner) with a cancel button. */
     public static class ProgressDialogSpinner extends DialogFragment {
@@ -325,27 +402,26 @@ public class ChargeCardActivity extends Activity {
             fragment.setArguments(args);
             return fragment;
         }
-        
+
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             String title = getArguments().getString("title");
             String message = getArguments().getString("message");
             ProgressDialog alert = new ProgressDialog(getActivity());
-            
+
             TextView titleView = new TextView(getActivity());
             titleView.setText(title);
             titleView.setPadding(15,15,15,15);
             titleView.setTextSize(20);
             titleView.setGravity(Gravity.CENTER);
             alert.setCustomTitle(titleView);
-            
+
             TextView messageView = new TextView(getActivity());
             messageView.setText(message);
             messageView.setTextSize(15);
             messageView.setPadding(15, 15, 15, 15);
             messageView.setGravity(Gravity.CENTER);
             alert.setMessage(message);
-            //alert.setView(messageView);
             alert.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new Dialog.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -357,14 +433,12 @@ public class ChargeCardActivity extends Activity {
         }
     }
 
-    // Utility functions for ChargeCardActivity.java.
-
     /** Dismisses the soft-key board outside of EditText area. */
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
-    
+
     /** Iterates through each View in this activity and checks if it is an
      * instance of EditText and if it is not, register a setOnTouchlistener
      * to that component. */
@@ -385,30 +459,31 @@ public class ChargeCardActivity extends Activity {
             }
         }
     }
-    
+
+    /** Checks for credit card information errors. */
     public void attemptSubmit() {
         cardNumber = (EditText) findViewById(R.id.card_number);
         expDate = (EditText) findViewById(R.id.expiration_date);
         cvv2 = (EditText) findViewById(R.id.CVV2);
         zipcode = (EditText) findViewById(R.id.zip_code);
-        
-        // Reset errors
+
+        /** Reset errors */
         cardNumber.setError(null);
         expDate.setError(null);
         cvv2.setError(null);
         zipcode.setError(null);
-        
+
         View focusView = null;
         boolean cancel = false;
-        
-        
-        // Store the value at the time of the transaction process
+
+
+        /** Store the value at the time of the transaction process */
         String cardNumberString = cardNumber.getText().toString();
         String expDateString = expDate.getText().toString();
         String cvv2String = cvv2.getText().toString();
         String zipcodeString = zipcode.getText().toString();
-        
-        // Check for valid card number
+
+        /** Check for valid card number */
         if (TextUtils.isEmpty(cardNumberString)) {
             cardNumber.setError(getString(R.string.error_field_required));
             focusView = cardNumber;
@@ -425,9 +500,10 @@ public class ChargeCardActivity extends Activity {
                 cancel = true;
             }
         }
-        
+
         String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR)).substring(1);
-        // Check for valid expiration date
+
+        /** Check for valid expiration date */
         if (TextUtils.isEmpty(expDateString)) {
             expDate.setError(getString(R.string.error_field_required));
             focusView = expDate;
@@ -451,8 +527,8 @@ public class ChargeCardActivity extends Activity {
             focusView = expDate;
             cancel = true;
         }
-        
-        // Check for valid cvv2
+
+        /** Check for valid cvv2 */
         if (TextUtils.isEmpty(cvv2String)) {
             cvv2.setError(getString(R.string.error_field_required));
             focusView = cvv2;
@@ -466,8 +542,8 @@ public class ChargeCardActivity extends Activity {
             focusView = cvv2;
             cancel = true;
         }
-        
-        // Check for valid zipcode
+
+        /** Check for valid zipcode */
         if (TextUtils.isEmpty(zipcodeString)) {
             zipcode.setError(getString(R.string.error_field_required));
             focusView = zipcode;
@@ -485,12 +561,7 @@ public class ChargeCardActivity extends Activity {
         if (cancel) {
             focusView.requestFocus();
         }
-      //  } else {
-      //      displayToast(getString(R.string.completed_transaction));
-      //  }
     }
-    
-    
 
     /** Displays a toast after the transaction has been processed and dismisses the keyboard. */
     public void displayToast(String message) {
@@ -501,7 +572,7 @@ public class ChargeCardActivity extends Activity {
         completedTransactionToast.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL, 0, 0);
         completedTransactionToast.show();
     }
-    
+
     /** Sets up the order of all of the EditTexts. */
     @SuppressWarnings("unused")
     private void setupEditText() {
@@ -519,7 +590,7 @@ public class ChargeCardActivity extends Activity {
                 }
                 return false;
             }
-            
+
         });
         expDate.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 
@@ -534,7 +605,7 @@ public class ChargeCardActivity extends Activity {
             }
         });
         cvv2.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            
+
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_NEXT) {
@@ -544,6 +615,59 @@ public class ChargeCardActivity extends Activity {
                 return false;
             }
         });
+    }
+
+    /**Fragment that opens an AlertDialog with message M and title T. */
+    public static class CompletedTransactionFragment extends DialogFragment {
+        public static CompletedTransactionFragment newInstance(String m, String t) {
+            String message = m;
+            String title = t;
+            CompletedTransactionFragment frag = new CompletedTransactionFragment();
+            Bundle args = new Bundle();
+            args.putString("title", title);
+            args.putString("message", message);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String title = getArguments().getString("title");
+            String message = getArguments().getString("message");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            TextView titleView = new TextView(getActivity());
+            titleView.setText(title);
+            titleView.setGravity(Gravity.CENTER);
+            titleView.setTextSize(20);
+            builder.setCustomTitle(titleView);
+
+            TextView messageView = new TextView(getActivity());
+            messageView.setText(message);
+            messageView.setTextSize(15);
+            messageView.setPadding(15, 15, 15, 15);
+            messageView.setGravity(Gravity.CENTER);
+            builder.setView(messageView);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+
+                }
+            });
+            builder.setNeutralButton("Return to Login Page", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ChargeCardActivity currentActivity = (ChargeCardActivity) getActivity();
+                    currentActivity.startLogout();
+                    Intent logoutIntent = new Intent(currentActivity, LoginActivity.class);
+                    startActivity(logoutIntent);
+                }
+            });
+            AlertDialog info = builder.create();
+            setCancelable(false);
+            return info;
+        }
     }
 }
 

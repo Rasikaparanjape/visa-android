@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.TextView;
 
-/**Fragment that opens an AlertDialog with developer information. */
+/**Fragment that opens an AlertDialog with message M and title T. */
 public class DevInfoFragment extends DialogFragment {
 	public static DevInfoFragment newInstance(String m, String t) {
     	String message = m;
