@@ -61,15 +61,13 @@ public class LoginActivity extends Activity {
 
     /** Buttons. */
     private Button loginButton;
-    
+
     /** Strings related to login authentication. */
     private String deviceNumber = "";
     protected static String deviceID = "358347040811237"; //"359691043853624";
     private String deviceInfo = "";
     protected static Merchant _merchant = null;
 
-
-    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         /** Setup the login form */
@@ -121,7 +119,7 @@ public class LoginActivity extends Activity {
         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(startMain);
     }
-    
+
     /** Creates menu. */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -258,7 +256,6 @@ public class LoginActivity extends Activity {
             } catch (Exception e) {
                 loginCode = RESULT_FAILURE;
             }
-
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
@@ -281,7 +278,6 @@ public class LoginActivity extends Activity {
                     startActivity(chargeCardIntent);
                     finish();
                 }
-
             } else {
                 mPasswordView
                         .setError(getString(R.string.error_incorrect_password));
@@ -354,6 +350,5 @@ public class LoginActivity extends Activity {
         }
         return false;
     }
-
 }
 

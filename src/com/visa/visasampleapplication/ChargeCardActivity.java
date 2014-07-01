@@ -169,7 +169,6 @@ public class ChargeCardActivity extends Activity {
                 attemptSubmit();
                 processCreditCardInfo();
                 startTransaction();
-
             }
         });
     }
