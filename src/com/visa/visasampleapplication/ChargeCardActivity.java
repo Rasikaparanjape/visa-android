@@ -4,7 +4,6 @@ package com.visa.visasampleapplication;
 import java.math.BigDecimal;
 import java.util.Calendar;
 
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,15 +12,19 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -32,7 +35,9 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import net.authorize.TransactionType;
@@ -56,6 +61,11 @@ public class ChargeCardActivity extends Activity {
     private EditText expDate;
     private EditText cvv2;
     private EditText zipcode;
+
+    /** Buttons. */
+    private Button swipeCardButton;
+    private ImageButton questionMarkButton;
+    private Button submitButton;
 
     /** Credit Card Number converted into String */
     private String cardNumText;
@@ -86,64 +96,41 @@ public class ChargeCardActivity extends Activity {
         setupUI(findViewById(R.id.charge_card_form));
         getActionBar().show();
 
-
         cardNumber = (EditText) findViewById(R.id.card_number);
-        /** Auto-format credit card text field at real time */
-        cardNumber.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) { }
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                cardNumText = cardNumber.getText().toString();
-                cardNumberLen = cardNumber.getText().length();
-                if ((cardNumberLen == 5 || cardNumberLen == 10 || cardNumberLen == 15)
-                        && !(String.valueOf(cardNumber.getText().toString().charAt(cardNumberLen - 1))
-                                .equals(" "))) {
-                    cardNumber.setText(new StringBuilder(cardNumText).insert(cardNumText.length() - 1, " ").toString());
-                    cardNumber.setSelection(cardNumber.getText().length());
-                }
-                if (cardNumText.endsWith(" ")) {
-                    return;
-                }
-                if ((cardNumberLen == CREDIT_CARD_LENGTH_W_SPACE)) {
-                    cardNumText = cardNumber.getText().toString();
-                    cardNumText.replace(" ", "");
-                    if (Luhn.isCardValid(cardNumText)) {
-                        Drawable checkMark = getResources().getDrawable(R.drawable.ic_check_mark);
-                        Bitmap checkMarkBitmap = ((BitmapDrawable) checkMark).getBitmap();
-                        Drawable scaledCheckMark = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(checkMarkBitmap, 50, 50, true));
-                        cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledCheckMark, null);
-                    } else {
-                        Drawable delete = getResources().getDrawable(R.drawable.ic_delete);
-                        Bitmap deleteBitmap = ((BitmapDrawable) delete).getBitmap();
-                        Drawable scaledDelete = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(deleteBitmap, 50, 50, true));
-                        cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledDelete, null);
-                    }
-                } else {
-                    cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-                }
-            }
-        });
+	    expDate = (EditText) findViewById(R.id.expiration_date);
+        cvv2 = (EditText) findViewById(R.id.CVV2);
+        zipcode = (EditText) findViewById(R.id.zip_code);
+        swipeCardButton = (Button) findViewById(R.id.swipe_card_button);
+        questionMarkButton = (ImageButton) findViewById(R.id.question_mark);
+        submitButton = (Button) findViewById(R.id.submit_button);
 
-        /** Auto-format expiration date at real time */
-        expDate = (EditText) findViewById(R.id.expiration_date);
-        expDate.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) { }
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String expDateText = expDate.getText().toString();
-                expDateLen = expDateText.length();
-                if (expDateLen == 3 && !(String.valueOf(expDate.getText().toString().charAt(expDateLen - 1)).equals("/"))) {
-                    expDate.setText(new StringBuilder(expDateText).insert(expDateText.length() - 1, "/").toString());
-                    expDate.setSelection(expDateLen);
-                }
-                if (expDateText.endsWith(" ")) {
-                    return;
-                }
-            }
-        });
+        enableSwipeButton();
+        formatCreditCard();
+        formatExpDate();
+        setupOnClick();
+    }
+    
+    private static float convertDPtoPixel(float dp, Context context) {
+    	Resources resources = context.getResources();
+    	DisplayMetrics metrics = resources.getDisplayMetrics();
+    	float px = dp * (metrics.densityDpi / 160f);
+    	return px;
+    }
 
+    /** Disables the swipe button if the swiper is not attached. */
+	public void enableSwipeButton() {
+    	// if swiper is connected, button is visible
+    	// otherwise not enabled
+    	GradientDrawable roundedCorner = new GradientDrawable();
+    	roundedCorner.setCornerRadius(convertDPtoPixel(3, this));
+    	roundedCorner.setColor(0xFFB5B0EF);
+    	swipeCardButton.setBackground(roundedCorner);
+    	swipeCardButton.setEnabled(false);
+    }
+    /** Setup all on click listeners. */
+    public void setupOnClick() {
         /** Respond to swipe card button */
-        findViewById(R.id.swipe_card_button).setOnClickListener(new View.OnClickListener() {
+        swipeCardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DialogFragment swipeCardFragment = ProgressDialogSpinner.newInstance(getString(R.string.swipe_card_alert), getString(R.string.swipe_card_alert_message));
@@ -153,8 +140,7 @@ public class ChargeCardActivity extends Activity {
         });
 
         /** Displays CVV2 information */
-        cvv2 = (EditText) findViewById(R.id.CVV2);
-        findViewById(R.id.question_mark).setOnClickListener(new View.OnClickListener() {
+        questionMarkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DialogFragment cvv2Info = DevInfoFragment.newInstance(getString(R.string.cvv2_info_message), getString(R.string.cvv2_info_title));
@@ -163,10 +149,8 @@ public class ChargeCardActivity extends Activity {
         });
 
         /** Respond to Done on the keypad */
-        zipcode = (EditText) findViewById(R.id.zip_code);
         zipcode
             .setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -179,8 +163,7 @@ public class ChargeCardActivity extends Activity {
                 }
             });
         /** Respond to submit button */
-        findViewById(R.id.submit_button).setOnClickListener(new View.OnClickListener() {
-
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 attemptSubmit();
@@ -189,6 +172,63 @@ public class ChargeCardActivity extends Activity {
 
             }
         });
+    }
+
+    /** Auto-format expiration date at real time */
+    public void formatExpDate() {
+	    expDate.addTextChangedListener(new TextWatcher() {
+	        public void afterTextChanged(Editable s) { }
+	        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+	        public void onTextChanged(CharSequence s, int start, int before, int count) {
+	            String expDateText = expDate.getText().toString();
+	            expDateLen = expDateText.length();
+	            if (expDateLen == 3 && !(String.valueOf(expDate.getText().toString().charAt(expDateLen - 1)).equals("/"))) {
+	                expDate.setText(new StringBuilder(expDateText).insert(expDateText.length() - 1, "/").toString());
+	                expDate.setSelection(expDateLen);
+	            }
+	            if (expDateText.endsWith(" ")) {
+	                return;
+	            }
+	        }
+	    });
+    }
+
+    /** Auto-format credit card text field at real time */
+    public void formatCreditCard() {
+	    cardNumber.addTextChangedListener(new TextWatcher() {
+	        public void afterTextChanged(Editable s) { }
+	        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+	        public void onTextChanged(CharSequence s, int start, int before, int count) {
+	            cardNumText = cardNumber.getText().toString();
+	            cardNumberLen = cardNumber.getText().length();
+	            if ((cardNumberLen == 5 || cardNumberLen == 10 || cardNumberLen == 15)
+	                    && !(String.valueOf(cardNumber.getText().toString().charAt(cardNumberLen - 1))
+	                            .equals(" "))) {
+	                cardNumber.setText(new StringBuilder(cardNumText).insert(cardNumText.length() - 1, " ").toString());
+	                cardNumber.setSelection(cardNumber.getText().length());
+	            }
+	            if (cardNumText.endsWith(" ")) {
+	                return;
+	            }
+	            if ((cardNumberLen == CREDIT_CARD_LENGTH_W_SPACE)) {
+	                cardNumText = cardNumber.getText().toString();
+	                cardNumText.replace(" ", "");
+	                if (Luhn.isCardValid(cardNumText)) {
+	                    Drawable checkMark = getResources().getDrawable(R.drawable.ic_check_mark);
+	                    Bitmap checkMarkBitmap = ((BitmapDrawable) checkMark).getBitmap();
+	                    Drawable scaledCheckMark = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(checkMarkBitmap, 50, 50, true));
+	                    cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledCheckMark, null);
+	                } else {
+	                    Drawable delete = getResources().getDrawable(R.drawable.ic_delete);
+	                    Bitmap deleteBitmap = ((BitmapDrawable) delete).getBitmap();
+	                    Drawable scaledDelete = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(deleteBitmap, 50, 50, true));
+	                    cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledDelete, null);
+	                }
+	            } else {
+	                cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+	            }
+	        }
+	    });
     }
 
     /** Disable the back button. */
@@ -462,10 +502,10 @@ public class ChargeCardActivity extends Activity {
 
     /** Checks for credit card information errors. */
     public void attemptSubmit() {
-        cardNumber = (EditText) findViewById(R.id.card_number);
-        expDate = (EditText) findViewById(R.id.expiration_date);
-        cvv2 = (EditText) findViewById(R.id.CVV2);
-        zipcode = (EditText) findViewById(R.id.zip_code);
+        //cardNumber = (EditText) findViewById(R.id.card_number);
+        //expDate = (EditText) findViewById(R.id.expiration_date);
+        //cvv2 = (EditText) findViewById(R.id.CVV2);
+        //zipcode = (EditText) findViewById(R.id.zip_code);
 
         /** Reset errors */
         cardNumber.setError(null);
