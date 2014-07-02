@@ -53,7 +53,7 @@ import net.authorize.data.ShippingCharges;
 
 
 /** Activity which displays screen to enter credit card information. */
-public class ChargeCardActivity extends Activity {
+public class ChargeCardActivity extends Activity implements IDTechSwiperListener {
     private static final int CREDIT_CARD_LENGTH_W_SPACE = 19;
 
     /** Credit Card Information */
@@ -87,6 +87,9 @@ public class ChargeCardActivity extends Activity {
 
     /** TransactionTask to be executed */
     protected ExecuteTransactionTask transactionTask;
+    
+    /**Swiper. */
+    IDTechSwiper swiper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +107,9 @@ public class ChargeCardActivity extends Activity {
         questionMarkButton = (ImageButton) findViewById(R.id.question_mark);
         submitButton = (Button) findViewById(R.id.submit_button);
 
+        swiper = new IDTechSwiper();
+        swiper.setListener(this);
+
         enableSwipeButton();
         formatCreditCard();
         formatExpDate();
@@ -119,13 +125,13 @@ public class ChargeCardActivity extends Activity {
 
     /** Disables the swipe button if the swiper is not attached. */
 	public void enableSwipeButton() {
-    	// if swiper is connected, button is visible
-    	// otherwise not enabled
-    	GradientDrawable roundedCorner = new GradientDrawable();
-    	roundedCorner.setCornerRadius(convertDPtoPixel(3, this));
-    	roundedCorner.setColor(0xFFB5B0EF);
-    	swipeCardButton.setBackground(roundedCorner);
-    	swipeCardButton.setEnabled(false);
+    	if (!(swiper.isConnected())) {
+	    	GradientDrawable roundedCorner = new GradientDrawable();
+	    	roundedCorner.setCornerRadius(convertDPtoPixel(3, this));
+	    	roundedCorner.setColor(0xFFB5B0EF);
+	    	swipeCardButton.setBackground(roundedCorner);
+	    	swipeCardButton.setEnabled(false);
+    	}
     }
     /** Setup all on click listeners. */
     public void setupOnClick() {
@@ -708,5 +714,48 @@ public class ChargeCardActivity extends Activity {
             return info;
         }
     }
+
+	@Override
+	public void onSwiperConnected() {
+		displayToast("Swiper Connected");
+		enableSwipeButton();
+		
+	}
+
+	@Override
+	public void onSwiperDisconnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSwipeSuccessfulDataReceived(String hexData, String encryption) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSwipeFailed(String error) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStartSwipeListen() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStartSwipeInitialize() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void promptUser(String strMessage) {
+		
+		
+	}
 }
 
