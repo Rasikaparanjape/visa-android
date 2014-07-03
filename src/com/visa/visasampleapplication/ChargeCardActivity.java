@@ -24,7 +24,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -40,11 +39,16 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import net.authorize.Merchant;
 import net.authorize.TransactionType;
 import net.authorize.aim.Result;
 import net.authorize.aim.Transaction;
+import net.authorize.aim.cardpresent.DeviceType;
+import net.authorize.aim.cardpresent.MarketType;
 import net.authorize.data.Order;
 import net.authorize.data.creditcard.CreditCard;
+import net.authorize.data.creditcard.CreditCardPresenceType;
+import net.authorize.data.swiperdata.SwiperEncryptionAlgorithmType;
 import net.authorize.util.Luhn;
 import net.authorize.data.Address;
 import net.authorize.data.Customer;
@@ -53,7 +57,7 @@ import net.authorize.data.ShippingCharges;
 
 
 /** Activity which displays screen to enter credit card information. */
-public class ChargeCardActivity extends Activity implements IDTechSwiperListener {
+public class ChargeCardActivity extends Activity {
     private static final int CREDIT_CARD_LENGTH_W_SPACE = 19;
 
     /** Credit Card Information */
@@ -86,10 +90,17 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
     private BigDecimal[] testOrderInfo;
 
     /** TransactionTask to be executed */
-    protected ExecuteTransactionTask transactionTask;
-    
-    /**Swiper. */
-    IDTechSwiper swiper;
+    private ExecuteTransactionTask transactionTask;
+
+    /** True if processing a card swipe, otherwise false. */
+    private boolean cardSwipe;
+
+    /** Merchant associated with transaction. */
+    private Merchant merchant;
+
+    /** Saves the default DeviceType and MarketType. */
+    private DeviceType defaultDeviceType;
+    private MarketType defaultMarketType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,49 +109,57 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
         setContentView(R.layout.activity_charge_card);
         setupUI(findViewById(R.id.charge_card_form));
         getActionBar().show();
+        cardSwipe = false;
 
         cardNumber = (EditText) findViewById(R.id.card_number);
-	    expDate = (EditText) findViewById(R.id.expiration_date);
+        expDate = (EditText) findViewById(R.id.expiration_date);
         cvv2 = (EditText) findViewById(R.id.CVV2);
         zipcode = (EditText) findViewById(R.id.zip_code);
         swipeCardButton = (Button) findViewById(R.id.swipe_card_button);
         questionMarkButton = (ImageButton) findViewById(R.id.question_mark);
         submitButton = (Button) findViewById(R.id.submit_button);
 
-        swiper = new IDTechSwiper();
-        swiper.setListener(this);
+        /** Current merchant. */
+        merchant = LoginActivity._merchant;
 
-        enableSwipeButton();
+        testOrderInfo = createTestOrder();
+
+        defaultDeviceType = merchant.getDeviceType();
+        defaultMarketType = merchant.getMarketType();
+
         formatCreditCard();
         formatExpDate();
         setupOnClick();
     }
-    
+
     private static float convertDPtoPixel(float dp, Context context) {
-    	Resources resources = context.getResources();
-    	DisplayMetrics metrics = resources.getDisplayMetrics();
-    	float px = dp * (metrics.densityDpi / 160f);
-    	return px;
+        Resources resources = context.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float px = dp * (metrics.densityDpi / 160f);
+        return px;
     }
 
     /** Disables the swipe button if the swiper is not attached. */
-	public void enableSwipeButton() {
-    	if (!(swiper.isConnected())) {
-	    	GradientDrawable roundedCorner = new GradientDrawable();
-	    	roundedCorner.setCornerRadius(convertDPtoPixel(3, this));
-	    	roundedCorner.setColor(0xFFB5B0EF);
-	    	swipeCardButton.setBackground(roundedCorner);
-	    	swipeCardButton.setEnabled(false);
-    	}
+    public void enableSwipeButton() {
+        GradientDrawable roundedCorner = new GradientDrawable();
+        roundedCorner.setCornerRadius(convertDPtoPixel(3, this));
+        roundedCorner.setColor(0xFFB5B0EF);
+        swipeCardButton.setBackground(roundedCorner);
+        swipeCardButton.setEnabled(false);
+
     }
+
     /** Setup all on click listeners. */
     public void setupOnClick() {
         /** Respond to swipe card button */
         swipeCardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DialogFragment swipeCardFragment = ProgressDialogSpinner.newInstance(getString(R.string.swipe_card_alert), getString(R.string.swipe_card_alert_message));
-                swipeCardFragment.show(getFragmentManager(), "swipecard");
+                cardSwipe = true;
+                ExecuteSwipeTask swipeTask = new ExecuteSwipeTask();
+                swipeTask.execute();
+                Log.d("blah", "before start transaction");
+                startTransaction();
                 //TODO: PROCESS SWIPE CARD
             }
         });
@@ -161,8 +180,6 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
                         attemptSubmit();
-                        processCreditCardInfo();
-                        startTransaction();
                         return true;
                     }
                     return false;
@@ -173,67 +190,65 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
             @Override
             public void onClick(View v) {
                 attemptSubmit();
-                processCreditCardInfo();
-                startTransaction();
             }
         });
     }
 
     /** Auto-format expiration date at real time */
     public void formatExpDate() {
-	    expDate.addTextChangedListener(new TextWatcher() {
-	        public void afterTextChanged(Editable s) { }
-	        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-	        public void onTextChanged(CharSequence s, int start, int before, int count) {
-	            String expDateText = expDate.getText().toString();
-	            expDateLen = expDateText.length();
-	            if (expDateLen == 3 && !(String.valueOf(expDate.getText().toString().charAt(expDateLen - 1)).equals("/"))) {
-	                expDate.setText(new StringBuilder(expDateText).insert(expDateText.length() - 1, "/").toString());
-	                expDate.setSelection(expDateLen);
-	            }
-	            if (expDateText.endsWith(" ")) {
-	                return;
-	            }
-	        }
-	    });
+        expDate.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String expDateText = expDate.getText().toString();
+                expDateLen = expDateText.length();
+                if (expDateLen == 3 && !(String.valueOf(expDate.getText().toString().charAt(expDateLen - 1)).equals("/"))) {
+                    expDate.setText(new StringBuilder(expDateText).insert(expDateText.length() - 1, "/").toString());
+                    expDate.setSelection(expDateLen);
+                }
+                if (expDateText.endsWith(" ")) {
+                    return;
+                }
+            }
+        });
     }
 
     /** Auto-format credit card text field at real time */
     public void formatCreditCard() {
-	    cardNumber.addTextChangedListener(new TextWatcher() {
-	        public void afterTextChanged(Editable s) { }
-	        public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-	        public void onTextChanged(CharSequence s, int start, int before, int count) {
-	            cardNumText = cardNumber.getText().toString();
-	            cardNumberLen = cardNumber.getText().length();
-	            if ((cardNumberLen == 5 || cardNumberLen == 10 || cardNumberLen == 15)
-	                    && !(String.valueOf(cardNumber.getText().toString().charAt(cardNumberLen - 1))
-	                            .equals(" "))) {
-	                cardNumber.setText(new StringBuilder(cardNumText).insert(cardNumText.length() - 1, " ").toString());
-	                cardNumber.setSelection(cardNumber.getText().length());
-	            }
-	            if (cardNumText.endsWith(" ")) {
-	                return;
-	            }
-	            if ((cardNumberLen == CREDIT_CARD_LENGTH_W_SPACE)) {
-	                cardNumText = cardNumber.getText().toString();
-	                cardNumText.replace(" ", "");
-	                if (Luhn.isCardValid(cardNumText)) {
-	                    Drawable checkMark = getResources().getDrawable(R.drawable.ic_check_mark);
-	                    Bitmap checkMarkBitmap = ((BitmapDrawable) checkMark).getBitmap();
-	                    Drawable scaledCheckMark = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(checkMarkBitmap, 50, 50, true));
-	                    cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledCheckMark, null);
-	                } else {
-	                    Drawable delete = getResources().getDrawable(R.drawable.ic_delete);
-	                    Bitmap deleteBitmap = ((BitmapDrawable) delete).getBitmap();
-	                    Drawable scaledDelete = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(deleteBitmap, 50, 50, true));
-	                    cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledDelete, null);
-	                }
-	            } else {
-	                cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-	            }
-	        }
-	    });
+        cardNumber.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                cardNumText = cardNumber.getText().toString();
+                cardNumberLen = cardNumber.getText().length();
+                if ((cardNumberLen == 5 || cardNumberLen == 10 || cardNumberLen == 15)
+                        && !(String.valueOf(cardNumber.getText().toString().charAt(cardNumberLen - 1))
+                                .equals(" "))) {
+                    cardNumber.setText(new StringBuilder(cardNumText).insert(cardNumText.length() - 1, " ").toString());
+                    cardNumber.setSelection(cardNumber.getText().length());
+                }
+                if (cardNumText.endsWith(" ")) {
+                    return;
+                }
+                if ((cardNumberLen == CREDIT_CARD_LENGTH_W_SPACE)) {
+                    cardNumText = cardNumber.getText().toString();
+                    cardNumText.replace(" ", "");
+                    if (Luhn.isCardValid(cardNumText)) {
+                        Drawable checkMark = getResources().getDrawable(R.drawable.ic_check_mark);
+                        Bitmap checkMarkBitmap = ((BitmapDrawable) checkMark).getBitmap();
+                        Drawable scaledCheckMark = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(checkMarkBitmap, 50, 50, true));
+                        cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledCheckMark, null);
+                    } else {
+                        Drawable delete = getResources().getDrawable(R.drawable.ic_delete);
+                        Bitmap deleteBitmap = ((BitmapDrawable) delete).getBitmap();
+                        Drawable scaledDelete = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(deleteBitmap, 50, 50, true));
+                        cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, scaledDelete, null);
+                    }
+                } else {
+                    cardNumber.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+                }
+            }
+        });
     }
 
     /** Disable the back button. */
@@ -259,7 +274,7 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
             case R.id.dev_info:
                 DialogFragment devInfoFragment =
                     DevInfoFragment.newInstance(getString(R.string.dev_info_message),
-                    		getString(R.string.dev_info_title));
+                            getString(R.string.dev_info_title));
                 devInfoFragment.show(getFragmentManager(), "devInfo");
                 return true;
             case R.id.logout:
@@ -276,7 +291,6 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
 
     /** Process all credit card information and continue to submit a transaction. */
     public void processCreditCardInfo() {
-        testOrderInfo = createTestOrder();
         creditCard = CreditCard.createCreditCard();
         String[] expDateArray = expDate.getText().toString().split("/");
         creditCard.setExpirationMonth(expDateArray[0]);
@@ -317,6 +331,30 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
         transactionTask.execute();
     }
 
+    /** An AysncTask to process the swipe data request. */
+    protected class ExecuteSwipeTask extends AsyncTask<Object, Void, Void> {
+        DialogFragment swipeCardFragment;
+        @Override
+        protected void onPreExecute() {
+            merchant.setDeviceType(DeviceType.WIRELESS_POS);
+            merchant.setMarketType(MarketType.RETAIL);
+            swipeCardFragment = ProgressDialogSpinner.newInstance(getString(R.string.swipe_card_alert), getString(R.string.swipe_card_alert_message));
+            swipeCardFragment.show(getFragmentManager(), "swipe card");
+        }
+        @Override
+        protected Void doInBackground(Object... params) {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) { }
+            onReceiveSwipeData();
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void v) {
+            swipeCardFragment.dismiss();
+        }
+
+    }
     /** An AysncTask to process the transaction request. */
     protected class ExecuteTransactionTask extends AsyncTask<Object, Void, Void> {
         public static final int RESULT_FAILURE           = -2;
@@ -329,14 +367,18 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
 
         @Override
         protected void onPreExecute() {
-            displayToast("Processing transaction...");
+            if (!cardSwipe) {
+                displayToast("Processing transaction...");
+            }
+            cardSwipe = false;
         }
 
         @Override
         protected Void doInBackground(Object... args) {
             try {
+                Thread.sleep(3000);
                 Transaction authorizeTransaction = createTransaction(TransactionType.AUTH_CAPTURE);
-                result = (Result) LoginActivity._merchant.postTransaction(authorizeTransaction);
+                result = (Result) merchant.postTransaction(authorizeTransaction);
             } catch (Exception e) { }
             return null;
         }
@@ -349,6 +391,9 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
             } else {
                 displayToast("ERROR");
             }
+            merchant.setDeviceType(defaultDeviceType);
+            merchant.setMarketType(defaultMarketType);
+
         }
 
         /** Display successful transaction fragment. */
@@ -367,7 +412,6 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
             if (result != null) {
                 aimTestResult.clearRequest();
                 setResult(aimTestResult.isApproved()? RESULT_OK:RESULT_FAILURE);
-                // TODO: return to login page or swipe card again
             }
         }
 
@@ -386,7 +430,7 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
          * the billing address associated with a customer. */
         public net.authorize.aim.Transaction createTransaction(TransactionType transactionType) {
             BigDecimal total = returnTotal();
-            net.authorize.aim.Transaction transaction = LoginActivity._merchant.createAIMTransaction(transactionType, total);
+            net.authorize.aim.Transaction transaction = merchant.createAIMTransaction(transactionType, total);
             transaction.setCreditCard(creditCard);
 
             ShippingCharges scharges = ShippingCharges.createShippingCharges();
@@ -429,8 +473,8 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
         net.authorize.mobile.Result result;
         @Override
         protected Void doInBackground(Object... params) {
-            net.authorize.mobile.Transaction logoutRequestTransaction = LoginActivity._merchant.createMobileTransaction(net.authorize.mobile.TransactionType.LOGOUT);
-            result = (net.authorize.mobile.Result) LoginActivity._merchant.postTransaction(logoutRequestTransaction);
+            net.authorize.mobile.Transaction logoutRequestTransaction = merchant.createMobileTransaction(net.authorize.mobile.TransactionType.LOGOUT);
+            result = (net.authorize.mobile.Result) merchant.postTransaction(logoutRequestTransaction);
             return null;
         }
     }
@@ -507,10 +551,10 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
 
     /** Checks for credit card information errors. */
     public void attemptSubmit() {
-        //cardNumber = (EditText) findViewById(R.id.card_number);
-        //expDate = (EditText) findViewById(R.id.expiration_date);
-        //cvv2 = (EditText) findViewById(R.id.CVV2);
-        //zipcode = (EditText) findViewById(R.id.zip_code);
+        cardNumber = (EditText) findViewById(R.id.card_number);
+        expDate = (EditText) findViewById(R.id.expiration_date);
+        cvv2 = (EditText) findViewById(R.id.CVV2);
+        zipcode = (EditText) findViewById(R.id.zip_code);
 
         /** Reset errors */
         cardNumber.setError(null);
@@ -605,6 +649,9 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
 
         if (cancel) {
             focusView.requestFocus();
+        } else {
+            processCreditCardInfo();
+            startTransaction();
         }
     }
 
@@ -681,6 +728,7 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
             String message = getArguments().getString("message");
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             TextView titleView = new TextView(getActivity());
+            titleView.setPadding(15, 15, 15, 15);
             titleView.setText(title);
             titleView.setGravity(Gravity.CENTER);
             titleView.setTextSize(20);
@@ -696,7 +744,6 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
-
                 }
             });
             builder.setNeutralButton("Return to Login Page", new DialogInterface.OnClickListener() {
@@ -715,47 +762,29 @@ public class ChargeCardActivity extends Activity implements IDTechSwiperListener
         }
     }
 
-	@Override
-	public void onSwiperConnected() {
-		displayToast("Swiper Connected");
-		enableSwipeButton();
-		
-	}
+    /** Functions related to the card swipe. */
+    
+    /** Continues processing the card swipe by assigning all credit card credentials. */
+    public void processSwipeData(String hexData, String encryption) {
+        creditCard = CreditCard.createCreditCard();
+        creditCard.setCardPresenseType(CreditCardPresenceType.CARD_PRESENT_ENCRYPTED);
+        creditCard.getSwipperData().setEncryptedData(hexData);
+        creditCard.getSwipperData().setDeviceInfo("4649443d4944544543482e556e694d61672e416e64726f69642e53646b7631"); // hardcoded device data
+        creditCard.getSwipperData().setEncryptionAlgorithm(SwiperEncryptionAlgorithmType.getEnum(encryption));
+    }
 
-	@Override
-	public void onSwiperDisconnected() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onSwipeSuccessfulDataReceived(String hexData, String encryption) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onSwipeFailed(String error) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onStartSwipeListen() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onStartSwipeInitialize() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void promptUser(String strMessage) {
-		
-		
-	}
+    /** Starts the process of the encrypted credit card information and the encryption type. */
+    public void onReceiveSwipeData() {
+        String testHexData = "02f700801f4725008383252a343736312a2a2a2a2a2a2a2a303031305"
+                + "e56495341204143515549524552205445535420434152442030345e313531322a2a2a"
+                + "2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a3f2a3b343736312a2a2a2a2a2a2a2a3030313"
+                + "03d313531322a2a2a2a2a2a2a2a2a2a2a2a2a3f2ab34e0f517a74165e667b150c552d6"
+                + "71b42d535ac03eef9280d9f498ebcb5fcd9f9fc820314bcb42558d27c819a20ea7c540"
+                + "9a1a3d82226a5785f533c602926a20b230cb2cd6e0c6d9a732e0088ec731510a338d9e"
+                + "86b1afc54e38399b76241aee8cc522d569e6799bc024bba28b63d955431323439323830"
+                + "303762994901000001a000511f4303"; // hardcoded encrypted data from card swipe
+        String encryptionType = SwiperEncryptionAlgorithmType.TDES.getFieldName();
+        processSwipeData(testHexData, encryptionType);
+    }
 }
 

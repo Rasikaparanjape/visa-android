@@ -64,7 +64,7 @@ public class LoginActivity extends Activity {
 
     /** Strings related to login authentication. */
     private String deviceNumber = "";
-    protected static String deviceID = "358347040811237"; //"359691043853624";
+    protected static String deviceID = "358347040811237"; // "359691043853624"
     private String deviceInfo = "";
     protected static Merchant _merchant = null;
 
@@ -139,7 +139,6 @@ public class LoginActivity extends Activity {
             return super.onOptionsItemSelected(item);
         }
     }
-    
 
     /** Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -182,7 +181,7 @@ public class LoginActivity extends Activity {
             /**  There was an error; don't attempt login and focus the first
              * form field with an error. */
             final EditText errorEditText = (EditText) focusView;
-            focusView.requestFocus();
+            errorEditText.requestFocus();
             errorEditText.setOnKeyListener(new OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -192,7 +191,7 @@ public class LoginActivity extends Activity {
                     }
                     return false;
                 }
-                
+
             });
         } else {
             /** Show a progress spinner, and kick off a background task to
@@ -257,14 +256,13 @@ public class LoginActivity extends Activity {
                 loginCode = RESULT_FAILURE;
             }
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 return RESULT_FAILURE;
             }
             return loginCode;
         }
 
-        
         @Override
         protected void onPostExecute(final Integer success) {
             mAuthTask = null;
@@ -345,7 +343,7 @@ public class LoginActivity extends Activity {
     public static boolean checkNetwork(Context context) {
         ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();
-        if (network != null) { 
+        if (network != null) {
             return network.isAvailable();
         }
         return false;
