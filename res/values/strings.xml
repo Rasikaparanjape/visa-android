@@ -3,10 +3,6 @@
 
     <!-- Strings related to Application Information -->
     <string name="app_name">Visa Sample Application</string>
-    <string name="title_item_detail">Item Detail</string>
-
-    <!-- String related to menu -->
-    <string name="dev_info">Developer Information</string>
 
     <!-- Strings related to Enter Card Information page -->
     <string name="card_number">Card Number</string>
@@ -58,9 +54,5 @@
     <string name="title_item_list">Items</string>
     <string name="title_activity_charge_card">Charge Credit Card</string>
     <string name="action_settings">Settings</string>
-    
-    <!-- Extra strings to be removed later -->
-    <string name="test_username">mobilecp1</string>
-    <string name="test_password">CPMobile2</string>
 
 </resources>
