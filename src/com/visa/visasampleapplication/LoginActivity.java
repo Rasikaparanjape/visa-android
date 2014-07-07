@@ -38,7 +38,6 @@ import net.authorize.mobile.TransactionType;
 import net.authorize.mobile.Transaction;
 import net.authorize.mobile.Result;
 
-
 /** Activity which displays a login screen to the user. */
 public class LoginActivity extends Activity {
 
@@ -64,7 +63,7 @@ public class LoginActivity extends Activity {
 
     /** Strings related to login authentication. */
     private String deviceNumber = "";
-    protected static String deviceID = "358347040811237"; // "359691043853624"
+    protected static String deviceID = "358347040811237"; // Device ID for swipe card: "359691043853624"
     private String deviceInfo = "";
     protected static Merchant _merchant = null;
 
@@ -170,7 +169,7 @@ public class LoginActivity extends Activity {
             cancel = true;
         }
 
-        /** Check for a valid log in ID. */
+        /** Check for a valid login ID. */
         if (TextUtils.isEmpty(mLoginID)) {
             mLoginIDView.setError(getString(R.string.error_field_required));
             focusView = mLoginIDView;
@@ -319,7 +318,7 @@ public class LoginActivity extends Activity {
         }
     }
 
-    /** Displays a toast after the transaction has been processed and dismisses the keyboard. */
+    /** Displays a toast with a MESSAGE. */
     public void displayToast(String message) {
         hideSoftKeyboard(this);
         Context currentContext = getApplicationContext();
@@ -330,7 +329,7 @@ public class LoginActivity extends Activity {
         completedTransactionToast.show();
     }
 
-    /** Authenticates the user-name and password. */
+    /** Authenticates the user-name and password using the VIEW. */
     public void authenticate(View view) {
         String loginID = ((EditText) findViewById(R.id.loginID)).getText().toString();
         String password = ((EditText) findViewById(R.id.password)).getText().toString();
@@ -339,7 +338,7 @@ public class LoginActivity extends Activity {
         _merchant.setDuplicateTxnWindowSeconds(30);
     }
 
-    /** Returns the NetworkInfo of the current context. */
+    /** Returns the NetworkInfo of the current CONTEXT. */
     public static boolean checkNetwork(Context context) {
         ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network = cm.getActiveNetworkInfo();

@@ -16,7 +16,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -58,7 +57,14 @@ import net.authorize.data.ShippingCharges;
 
 /** Activity which displays screen to enter credit card information. */
 public class ChargeCardActivity extends Activity {
+    /** Credit Card total length. */ 
     private static final int CREDIT_CARD_LENGTH_W_SPACE = 19;
+
+    /** Current length of the card number in real time */
+    private int cardNumberLen = 0;
+
+    /** Credit Card */
+    private static CreditCard creditCard;
 
     /** Credit Card Information */
     private EditText cardNumber;
@@ -74,14 +80,8 @@ public class ChargeCardActivity extends Activity {
     /** Credit Card Number converted into String */
     private String cardNumText;
 
-    /** Current length of the card number in real time */
-    private int cardNumberLen = 0;
-
     /** Current length of the expiration date in real time */
     private int expDateLen = 0;
-
-    /** Credit Card */
-    private static CreditCard creditCard;
 
     /** Test Order - used only for testing */
     private static Order testOrder;
@@ -132,23 +132,6 @@ public class ChargeCardActivity extends Activity {
         setupOnClick();
     }
 
-    private static float convertDPtoPixel(float dp, Context context) {
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * (metrics.densityDpi / 160f);
-        return px;
-    }
-
-    /** Disables the swipe button if the swiper is not attached. */
-    public void enableSwipeButton() {
-        GradientDrawable roundedCorner = new GradientDrawable();
-        roundedCorner.setCornerRadius(convertDPtoPixel(3, this));
-        roundedCorner.setColor(0xFFB5B0EF);
-        swipeCardButton.setBackground(roundedCorner);
-        swipeCardButton.setEnabled(false);
-
-    }
-
     /** Setup all on click listeners. */
     public void setupOnClick() {
         /** Respond to swipe card button */
@@ -158,9 +141,7 @@ public class ChargeCardActivity extends Activity {
                 cardSwipe = true;
                 ExecuteSwipeTask swipeTask = new ExecuteSwipeTask();
                 swipeTask.execute();
-                Log.d("blah", "before start transaction");
                 startTransaction();
-                //TODO: PROCESS SWIPE CARD
             }
         });
 
@@ -349,6 +330,7 @@ public class ChargeCardActivity extends Activity {
             onReceiveSwipeData();
             return null;
         }
+
         @Override
         protected void onPostExecute(Void v) {
             swipeCardFragment.dismiss();
@@ -393,7 +375,6 @@ public class ChargeCardActivity extends Activity {
             }
             merchant.setDeviceType(defaultDeviceType);
             merchant.setMarketType(defaultMarketType);
-
         }
 
         /** Display successful transaction fragment. */
@@ -468,7 +449,7 @@ public class ChargeCardActivity extends Activity {
         logoutTransaction.execute();
     }
 
-    /** Async class to process the Logout request. */
+    /** AsyncTask class to process the Logout request. */
     protected class ExecuteLogoutTransactionTask extends AsyncTask<Object, Void, Void> {
         net.authorize.mobile.Result result;
         @Override
@@ -522,11 +503,6 @@ public class ChargeCardActivity extends Activity {
         }
     }
 
-    /** Dismisses the soft-key board outside of EditText area. */
-    public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
-    }
 
     /** Iterates through each View in this activity and checks if it is an
      * instance of EditText and if it is not, register a setOnTouchlistener
@@ -536,7 +512,7 @@ public class ChargeCardActivity extends Activity {
             view.setOnTouchListener(new OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    hideSoftKeyboard(ChargeCardActivity.this);
+                    LoginActivity.hideSoftKeyboard(ChargeCardActivity.this);
                     return false;
                 }
             });
@@ -564,7 +540,6 @@ public class ChargeCardActivity extends Activity {
 
         View focusView = null;
         boolean cancel = false;
-
 
         /** Store the value at the time of the transaction process */
         String cardNumberString = cardNumber.getText().toString();
@@ -666,7 +641,6 @@ public class ChargeCardActivity extends Activity {
     }
 
     /** Sets up the order of all of the EditTexts. */
-    @SuppressWarnings("unused")
     private void setupEditText() {
         final EditText cardNumber = (EditText) findViewById(R.id.card_number);
         final EditText expDate = (EditText) findViewById(R.id.expiration_date);
@@ -769,7 +743,7 @@ public class ChargeCardActivity extends Activity {
         creditCard = CreditCard.createCreditCard();
         creditCard.setCardPresenseType(CreditCardPresenceType.CARD_PRESENT_ENCRYPTED);
         creditCard.getSwipperData().setEncryptedData(hexData);
-        creditCard.getSwipperData().setDeviceInfo("4649443d4944544543482e556e694d61672e416e64726f69642e53646b7631"); // hardcoded device data
+        creditCard.getSwipperData().setDeviceInfo("4649443d4944544543482e556e694d61672e416e64726f69642e53646b7631"); // hardcoded device info
         creditCard.getSwipperData().setEncryptionAlgorithm(SwiperEncryptionAlgorithmType.getEnum(encryption));
     }
 
