@@ -4,7 +4,6 @@
     tools:context="com.visa.visasampleapplication.LoginActivity" >
 
     <!-- Login progress -->
-
     <LinearLayout
         android:id="@+id/login_status"
         android:layout_width="wrap_content"
@@ -31,7 +30,6 @@
     </LinearLayout>
 
     <!-- Login form -->
-
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="match_parent"
@@ -43,6 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
+            <!-- Image of the Visa Logo -->
             <ImageView
                 android:id="@+id/logo"
                 android:layout_width="wrap_content"
@@ -55,6 +54,7 @@
                 android:scaleY="0.5"
                 android:src="@drawable/visa_logo" />
 
+            <!-- Edit Text for the login ID -->
             <EditText
                 android:id="@+id/loginID"
                 android:layout_width="match_parent"
@@ -73,6 +73,7 @@
                 <requestFocus />
             </EditText>
 
+            <!-- Edit Text for the password -->
             <EditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
@@ -107,6 +108,7 @@
                     android:layout_marginRight="15dp"
                     android:background="?android:attr/dividerHorizontal" />
 
+                <!-- Login button -->
                 <Button
                     android:id="@+id/log_in_button"
                     android:layout_width="match_parent"
@@ -118,9 +120,8 @@
                     android:textAllCaps="true"
                     android:background="@drawable/button_bg"
                     android:text="@string/action_log_in" />
-
             </RelativeLayout>
-
         </LinearLayout>
     </ScrollView>
 </merge>
+

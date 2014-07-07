@@ -8,6 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingTop="50dp">
+        <!-- Edit Text for the card number -->
         <EditText
             android:id="@+id/card_number"
             android:layout_width="match_parent"
@@ -24,9 +25,9 @@
             android:layout_marginRight="15dp"
             android:layout_marginBottom="10dp" >
             <requestFocus />
-
         </EditText>
 
+        <!-- Edit Text for the expiration date -->
         <EditText
             android:id="@+id/expiration_date"
             android:layout_width="wrap_content"
@@ -44,6 +45,7 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="2.5dp" />
 
+        <!-- Edit Text for the CVV2 -->
         <EditText
             android:id="@+id/CVV2"
             android:layout_width="wrap_content"
@@ -61,6 +63,7 @@
             android:layout_marginLeft="2.5dp"
             android:layout_marginRight="2.5dp" />
  
+        <!-- Edit Text for the zipcode -->
         <EditText
             android:id="@+id/zip_code"
             android:layout_width="wrap_content"
@@ -88,6 +91,7 @@
             android:layout_centerHorizontal="true"
             android:background="?android:attr/dividerVertical" />
 
+        <!-- Swipe card button -->
         <Button
             android:id="@+id/swipe_card_button"
             android:layout_width="wrap_content"
@@ -103,6 +107,7 @@
             android:layout_marginBottom="10dp"
             android:background="@drawable/button_bg" />
 
+        <!-- Submit button -->
         <Button
             android:id="@+id/submit_button"
             android:layout_width="wrap_content"
@@ -118,6 +123,7 @@
             android:layout_marginBottom="10dp"
             android:textColor="#FFFFFF" />
 
+        <!-- Helper button that is associated with the CVV2 -->
         <ImageButton
             android:id="@+id/question_mark"
             android:layout_width="wrap_content"
@@ -126,7 +132,6 @@
             android:layout_alignTop="@+id/CVV2"
             android:background="#00000000"
             android:src="@drawable/ic_question_mark" />
-
     </RelativeLayout>
 
 </ScrollView>
