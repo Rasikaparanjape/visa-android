@@ -37,5 +37,5 @@
                 android:value="com.visa.visasampleapplication.LoginActivity" />
         </activity>
     </application>
-
 </manifest>
+

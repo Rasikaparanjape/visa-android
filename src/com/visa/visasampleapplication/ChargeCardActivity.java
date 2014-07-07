@@ -632,7 +632,7 @@ public class ChargeCardActivity extends Activity {
 
     /** Displays a toast after the transaction has been processed and dismisses the keyboard. */
     public void displayToast(String message) {
-        hideSoftKeyboard(this);
+        LoginActivity.hideSoftKeyboard(this);
         Context currentContext = getApplicationContext();
         int duration = Toast.LENGTH_SHORT;
         Toast completedTransactionToast = Toast.makeText(currentContext, message, duration);
