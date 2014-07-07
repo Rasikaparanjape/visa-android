@@ -49,10 +49,11 @@
                 android:layout_gravity="top"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/visa_logo"
-                android:scaleType="fitXY"
-                android:scaleX="0.5"
-                android:scaleY="0.5"
-                android:src="@drawable/visa_logo" />
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:paddingTop="45dp"
+                android:paddingBottom="45dp"
+                android:src="@drawable/authorize_net" />
 
             <!-- Edit Text for the login ID -->
             <EditText

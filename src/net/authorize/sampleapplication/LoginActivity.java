@@ -1,4 +1,6 @@
-package com.visa.visasampleapplication;
+package net.authorize.sampleapplication;
+
+import com.visa.visasampleapplication.R;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
