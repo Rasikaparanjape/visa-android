@@ -13,11 +13,11 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/visa_icon"
+        android:icon="@drawable/authorizenet_icon"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo.Light" >
         <activity
-            android:name="com.visa.visasampleapplication.LoginActivity"
+            android:name="net.authorize.sampleapplication.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="sensor"
             android:windowSoftInputMode="adjustResize|stateVisible" >
@@ -29,7 +29,7 @@
         </activity>
 
         <activity
-            android:name="com.visa.visasampleapplication.ChargeCardActivity"
+            android:name="net.authorize.sampleapplication.ChargeCardActivity"
             android:label="@string/title_activity_charge_card"
             android:screenOrientation="sensor" >
             <meta-data

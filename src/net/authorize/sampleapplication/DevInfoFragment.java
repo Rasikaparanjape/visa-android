@@ -1,4 +1,4 @@
-package com.visa.visasampleapplication;
+package net.authorize.sampleapplication;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

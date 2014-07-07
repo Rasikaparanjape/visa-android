@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Strings related to Application Information -->
-    <string name="app_name">Visa Sample Application</string>
+    <string name="app_name">Authorize.Net Sample</string>
 
     <!-- Strings related to Enter Card Information page -->
     <string name="card_number">Card Number</string>

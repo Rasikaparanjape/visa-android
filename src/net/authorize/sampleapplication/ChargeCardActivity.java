@@ -1,8 +1,10 @@
-package com.visa.visasampleapplication;
+package net.authorize.sampleapplication;
 
 
 import java.math.BigDecimal;
 import java.util.Calendar;
+
+import com.visa.visasampleapplication.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
