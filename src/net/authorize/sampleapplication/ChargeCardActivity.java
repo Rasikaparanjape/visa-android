@@ -237,10 +237,6 @@ public class ChargeCardActivity extends Activity {
     /** Disable the back button. */
     @Override
     public void onBackPressed() {
-        Intent startMain = new Intent(Intent.ACTION_MAIN);
-        startMain.addCategory(Intent.CATEGORY_HOME);
-        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(startMain);
     }
 
     /** Creates menu. */
@@ -431,10 +427,10 @@ public class ChargeCardActivity extends Activity {
             Customer testCustomer = Customer.createCustomer();
             Address billingAddress = Address.createAddress();
             billingAddress.setZipPostalCode(zipcode.getText().toString());
-            billingAddress.setFirstName("Patrick");
-            billingAddress.setLastName("Dodd");
+            billingAddress.setFirstName("John");
+            billingAddress.setLastName("Doe");
             billingAddress.setAddress("Main Street");
-            billingAddress.setCity("Bellevue");
+            billingAddress.setCity("MyCity");
             billingAddress.setCountry("USA");
             billingAddress.setState("WA");
             transaction.setCustomer(testCustomer);
@@ -745,7 +741,7 @@ public class ChargeCardActivity extends Activity {
         creditCard = CreditCard.createCreditCard();
         creditCard.setCardPresenseType(CreditCardPresenceType.CARD_PRESENT_ENCRYPTED);
         creditCard.getSwipperData().setEncryptedData(hexData);
-        creditCard.getSwipperData().setDeviceInfo("4649443d4944544543482e556e694d61672e416e64726f69642e53646b7631"); // hardcoded device info
+        creditCard.getSwipperData().setDeviceInfo("4649443d4944544543482e556e694d61672e416e64726f69642e53646b7631"); // set device info
         creditCard.getSwipperData().setEncryptionAlgorithm(SwiperEncryptionAlgorithmType.getEnum(encryption));
     }
 
@@ -758,7 +754,7 @@ public class ChargeCardActivity extends Activity {
                 + "71b42d535ac03eef9280d9f498ebcb5fcd9f9fc820314bcb42558d27c819a20ea7c540"
                 + "9a1a3d82226a5785f533c602926a20b230cb2cd6e0c6d9a732e0088ec731510a338d9e"
                 + "86b1afc54e38399b76241aee8cc522d569e6799bc024bba28b63d955431323439323830"
-                + "303762994901000001a000511f4303"; // hardcoded encrypted data from card swipe
+                + "303762994901000001a000511f4303"; // set encrypted data from card swipe
         String encryptionType = SwiperEncryptionAlgorithmType.TDES.getFieldName();
         processSwipeData(testHexData, encryptionType);
     }

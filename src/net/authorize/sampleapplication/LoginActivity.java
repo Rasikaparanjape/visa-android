@@ -65,7 +65,7 @@ public class LoginActivity extends Activity {
 
     /** Strings related to login authentication. */
     private String deviceNumber = "";
-    protected static String deviceID = "358347040811237"; // Device ID for swipe card: "359691043853624"
+    protected static String deviceID = "358347040811237"; // Device ID for swipe card: "359691043853624" // set device ID
     private String deviceInfo = "";
     protected static Merchant _merchant = null;
 
@@ -115,10 +115,6 @@ public class LoginActivity extends Activity {
     /** Disable the back button. */
     @Override
     public void onBackPressed() {
-        Intent startMain = new Intent(Intent.ACTION_MAIN);
-        startMain.addCategory(Intent.CATEGORY_HOME);
-        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(startMain);
     }
 
     /** Creates menu. */
