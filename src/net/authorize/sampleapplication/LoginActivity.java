@@ -65,7 +65,7 @@ public class LoginActivity extends Activity {
 
     /** Strings related to login authentication. */
     private String deviceNumber = "";
-    protected static String deviceID = "358347040811237"; // Device ID for swipe card: "359691043853624" // set device ID
+    protected static String deviceID = "testDeviceID"; // set device ID
     private String deviceInfo = "";
     protected static Merchant _merchant = null;
 

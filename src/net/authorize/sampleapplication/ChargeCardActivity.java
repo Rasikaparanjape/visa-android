@@ -741,20 +741,13 @@ public class ChargeCardActivity extends Activity {
         creditCard = CreditCard.createCreditCard();
         creditCard.setCardPresenseType(CreditCardPresenceType.CARD_PRESENT_ENCRYPTED);
         creditCard.getSwipperData().setEncryptedData(hexData);
-        creditCard.getSwipperData().setDeviceInfo("4649443d4944544543482e556e694d61672e416e64726f69642e53646b7631"); // set device info
+        creditCard.getSwipperData().setDeviceInfo("testDeviceInfo"); // set device info
         creditCard.getSwipperData().setEncryptionAlgorithm(SwiperEncryptionAlgorithmType.getEnum(encryption));
     }
 
     /** Starts the process of the encrypted credit card information and the encryption type. */
     public void onReceiveSwipeData() {
-        String testHexData = "02f700801f4725008383252a343736312a2a2a2a2a2a2a2a303031305"
-                + "e56495341204143515549524552205445535420434152442030345e313531322a2a2a"
-                + "2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a3f2a3b343736312a2a2a2a2a2a2a2a3030313"
-                + "03d313531322a2a2a2a2a2a2a2a2a2a2a2a2a3f2ab34e0f517a74165e667b150c552d6"
-                + "71b42d535ac03eef9280d9f498ebcb5fcd9f9fc820314bcb42558d27c819a20ea7c540"
-                + "9a1a3d82226a5785f533c602926a20b230cb2cd6e0c6d9a732e0088ec731510a338d9e"
-                + "86b1afc54e38399b76241aee8cc522d569e6799bc024bba28b63d955431323439323830"
-                + "303762994901000001a000511f4303"; // set encrypted data from card swipe
+        String testHexData = "testHexData";// set encrypted data from card swipe
         String encryptionType = SwiperEncryptionAlgorithmType.TDES.getFieldName();
         processSwipeData(testHexData, encryptionType);
     }
